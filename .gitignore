@@ -40,5 +40,7 @@ __screenshots__/
 *.timestamp-*-*.mjs
 
 # Others
-flake.*
 main
+shell.nix
+*.db
+*.sh

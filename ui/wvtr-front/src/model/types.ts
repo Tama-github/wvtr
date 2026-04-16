@@ -1,12 +1,18 @@
 
-type Waifu = {
-    id?: number;
-    imageUrl?: string;
+type Hero = {
+    id: number;
+    name: string;
+    imageUrl: string;
+    level: number;
+    currentXP: number;
+    xpBeforLvlUp: number;
+    currentHP: number;
+    maxHP: number;
 };
 
 type Team = {
     id?: number;
-    waifus?: Waifu[];
+    heroes?: Hero[];
 };
 
 enum EncounterState {
@@ -17,11 +23,16 @@ enum EncounterState {
     Error,
 }
 
+type ExpeditionStepResolveInfo = {
+    stepInfos: string,
+    stepEndAt: string,
+    stepState: EncounterState,
+}
+
 type GameState = {
-    isBusy: boolean;
-    state: EncounterState;
-    wTeam: Team | null;
-    eTeam: Team | null;
+    state: EncounterState,
+    wTeam: Team | null,
+    eTeam: Team | null,
 }
 
 type User = {
@@ -29,14 +40,22 @@ type User = {
     name: string,
     state: GameState,
     currentTeam: Team,
-    lastActionTime: Date,
+    lastActionTime: string,
+    ownedHeroes: Hero[],
+}
+
+type CurrentStepRequestMessage = {
+    id: number
+    time: number
 }
 
 export type {
-    Waifu,
+    Hero,
     Team,
     GameState,
     User,
+    ExpeditionStepResolveInfo,
+    CurrentStepRequestMessage,
 };
 
 export {
