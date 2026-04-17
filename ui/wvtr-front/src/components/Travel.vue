@@ -2,6 +2,7 @@
     import { onMounted, ref, watch } from "vue";
     import { EncounterState, type CurrentStepRequestMessage, type ExpeditionStepResolveInfo, type User } from "../model/types.ts"
     import { getCurrentExpeditionStepResolveInfo, postRequest, RequestType } from "../model/utils.ts"
+import Team from "./Team.vue";
 
     const props = defineProps<{
         user: User;
@@ -82,6 +83,7 @@
 </script>
 
 <template>
+    <Team :team="props.user.currentTeam"/>
     <div v-if="answer != undefined">
         <h1>Traveling</h1>
         <p>time before travel end {{ timertxt }}</p>

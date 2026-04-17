@@ -8,19 +8,20 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"wvtrserv/logger"
 	"wvtrserv/stypes"
 )
 
-// Main page
+// Main page ?
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("req.Method: %s\n", r.Method)
-	fmt.Printf("req.URL.Path: %s\n", r.URL.Path)
-	fmt.Printf("req.ContentLength: %d\n", r.ContentLength)
+	logger.DumpLog.Printf("req.Method: %s\n", r.Method)
+	logger.DumpLog.Printf("req.URL.Path: %s\n", r.URL.Path)
+	logger.DumpLog.Printf("req.ContentLength: %d\n", r.ContentLength)
 
 	d := http.Dir("./ui/vu/UI/dist")
 	f, err := d.Open("index.html")
 	if err != nil {
-		panic(err)
+		logger.ErrLog.Println(err)
 	}
 
 	defer f.Close()
@@ -29,7 +30,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 // Getters
 func handlerHero(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("call for API hadler hero\n")
+	functionS := "[handlerHero]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 	ids := r.PathValue("id")
 	id, _ := strconv.Atoi(ids)
 
@@ -37,15 +39,16 @@ func handlerHero(w http.ResponseWriter, r *http.Request) {
 
 	b, err := json.Marshal(hero)
 	if err != nil {
-		fmt.Println(err)
+		logger.ErrLog.Println(err)
 		return
 	}
-	fmt.Printf("Giving : %s\n", string(b))
+	logger.DumpLog.Printf("%s Giving :\n %s\n", functionS, string(b))
 	fmt.Fprintf(w, "%s", string(b))
 }
 
 func handlerTeam(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("call for API hadler team\n")
+	functionS := "[handlerTeam]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 	ids := r.PathValue("id")
 	id, _ := strconv.Atoi(ids)
 
@@ -53,29 +56,31 @@ func handlerTeam(w http.ResponseWriter, r *http.Request) {
 
 	b, err := json.Marshal(team)
 	if err != nil {
-		fmt.Println(err)
+		logger.ErrLog.Println(err)
 		return
 	}
-	fmt.Printf("Giving : %s\n", string(b))
+	logger.DumpLog.Printf("%s Giving :\n %s\n", functionS, string(b))
 	fmt.Fprintf(w, "%s", string(b))
 }
 
 func handlerAvailableExpeditions(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("call for API hadler Available Expeditions\n")
+	functionS := "[handlerAvailableExpeditions]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 
 	expeditions := stypes.GetExpeditions()
 
 	b, err := json.Marshal(expeditions)
 	if err != nil {
-		fmt.Println(err)
+		logger.ErrLog.Println(err)
 		return
 	}
-	fmt.Printf("Giving : %s\n", string(b))
+	logger.DumpLog.Printf("%s Giving :\n %s\n", functionS, string(b))
 	fmt.Fprintf(w, "%s", string(b))
 }
 
 func handlerUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("call for API hadler user\n")
+	functionS := "[handlerUser]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 	ids := r.PathValue("id")
 	id, _ := strconv.Atoi(ids)
 
@@ -83,60 +88,65 @@ func handlerUser(w http.ResponseWriter, r *http.Request) {
 
 	b, err := json.Marshal(user)
 	if err != nil {
-		fmt.Println(err)
+		logger.ErrLog.Println(err)
 		return
 	}
-	fmt.Printf("Giving : %s\n", string(b))
+	logger.DumpLog.Printf("%s Giving :\n %s\n", functionS, string(b))
 	fmt.Fprintf(w, "%s", string(b))
 }
 
 // Updaters
 func handlerSaveUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("call for API hadler Save User\n")
+	functionS := "[handlerSaveUser]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 	if r.Method != http.MethodPost {
 		s := fmt.Sprintf("Method not allowed (%s) POST expected.", r.Method)
+		logger.ErrLog.Println(s)
 		http.Error(w, s, http.StatusMethodNotAllowed)
 		return
 	}
 	user := &stypes.User{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
-		fmt.Printf("Error when trying to get the user from the request body, got : %s", r.Body)
+		logger.ErrLog.Printf("%s Error when trying to get the user from the request body, got : %s", functionS, r.Body)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	b, err := json.Marshal(user)
 	if err != nil {
-		fmt.Println(err)
+		logger.ErrLog.Println(err)
 		return
 	}
-	fmt.Printf("Giving : %s\n", string(b))
+	logger.DumpLog.Printf("%s Giving :\n %s\n", functionS, string(b))
 	stypes.UpdateUser(user)
 	w.WriteHeader(http.StatusCreated)
 }
 
 func handlerUpdateTeam(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("call for API hadler Update Team\n")
+	functionS := "[handlerUpdateTeam]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
+
 	if r.Method != http.MethodPost {
-		s := fmt.Sprintf("Method not allowed (%s) POST expected.", r.Method)
+		s := fmt.Sprintf("%s Method not allowed (%s) POST expected.", functionS, r.Method)
+		logger.ErrLog.Println(s)
 		http.Error(w, s, http.StatusMethodNotAllowed)
 		return
 	}
 	user := &stypes.User{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
-		fmt.Printf("Error when trying to get the user from the request body, got : %s", r.Body)
+		logger.ErrLog.Printf("%s Error when trying to get the user from the request body, got : %s", functionS, r.Body)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	b, err := json.Marshal(user)
 	if err != nil {
-		fmt.Println(err)
+		logger.ErrLog.Println(err)
 		return
 	}
-	fmt.Printf("Giving : %s\n", string(b))
+	logger.DumpLog.Printf("%s Giving :\n %s\n", functionS, string(b))
 	stypes.UpdateTeam(user)
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "{}")
@@ -148,68 +158,61 @@ type CurrentStepRequestMessage struct {
 }
 
 func handlerCurrentExpeditionStep(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("call for API Current Expedition Step\n")
+	functionS := "[handlerCurrentExpeditionStep]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 
-	fmt.Printf("method check\n")
 	if r.Method != http.MethodPost {
-		s := fmt.Sprintf("Method not allowed (%s) POST expected.", r.Method)
-		fmt.Println(s)
+		s := fmt.Sprintf("%s Method not allowed (%s) POST expected.", functionS, r.Method)
+		logger.ErrLog.Println(s)
 		http.Error(w, s, http.StatusMethodNotAllowed)
 		return
 	}
 	var data CurrentStepRequestMessage
 	err := json.NewDecoder(r.Body).Decode(&data)
-	fmt.Printf("time ? %d\n", data.Time)
 	var t time.Time = time.Unix(0, data.Time*int64(time.Millisecond))
 
 	user := stypes.GetUserByID(uint(data.Uid))
 
-	fmt.Printf("decode check\n")
 	if err != nil {
-		fmt.Printf("Error when trying to get the time : %s", r.Body)
+		logger.ErrLog.Printf("%s Error when trying to get the time : %s", functionS, r.Body)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("resovle expedition\n")
 	res := user.ResolveExpeditionState(&t)
-	fmt.Printf("update game state\n")
 	stypes.UpdateGameState(user.State)
 
 	resS := "{}"
 	if res != nil {
-		fmt.Printf("marshal du res\n")
 		b, err := json.Marshal(res)
 
-		fmt.Printf("encode check\n")
 		if err != nil {
-			fmt.Println(err)
+			logger.ErrLog.Println(err)
 			return
 		}
 		resS = string(b)
 	}
 
-	fmt.Printf("Giving: %s\n", resS)
+	logger.DumpLog.Printf("%s Giving :\n %s\n", functionS, resS)
 	fmt.Fprintf(w, "%s", resS)
 }
 
 func handlerLaunchExpedition(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("call for API hadler Launch expedition\n")
+	functionS := "[handlerLaunchExpedition]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 	ids := r.PathValue("usr")
 	id, _ := strconv.Atoi(ids)
 
 	expIdentifier := r.PathValue("expId")
 
 	user := stypes.GetUserByID(uint(id))
-	fmt.Printf("user Ok\n")
 
 	user.LaunchExpedition(expIdentifier)
-	fmt.Printf("after launch\n")
 	b, err := json.Marshal(user.State.CurrentExpedition.WhatHappened[0])
 	if err != nil {
-		fmt.Println(err)
+		logger.ErrLog.Println(err)
 		return
 	}
-	fmt.Printf("Giving: %s\n", string(b))
+	logger.DumpLog.Printf("%s Giving :\n %s\n", functionS, string(b))
 	fmt.Fprintf(w, "%s", string(b))
 }
 
@@ -239,7 +242,7 @@ func main() {
 	// Images handler
 	http.Handle("/imgs/", http.StripPrefix("/imgs/", http.FileServer(http.Dir("imgs/"))))
 
-	log.Println("Listening on :4210...")
+	logger.DumpLog.Println("Listening on :4210...")
 	err := http.ListenAndServe(":4210", nil)
 	if err != nil {
 		log.Fatal(err)
