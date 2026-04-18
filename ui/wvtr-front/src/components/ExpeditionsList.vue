@@ -3,7 +3,7 @@
     import type { ExpeditionStepResolveInfo, User } from "../model/types.ts"
     import type { Hero } from "../model/types.ts"
     import Team from "./Team.vue"
-    import { global, fetchData, RequestType, postRequest, launchExpedition } from "../model/utils.ts"
+    import { global, fetchData, RequestType, postRequest, launchExpedition, formatTextTimeFromTimeMS } from "../model/utils.ts"
 
     // const currentHomeStatus = ref(HomeStatus.Noting);
 
@@ -71,7 +71,7 @@
             <div class="row"> 
                 <div v-for="(value, key) in expeditions" v-on:click="clickOnExpedition(key)" :class="selectionB[key]">
                     <p style="text-align: center;">{{ key }}</p>
-                    <p style="text-align: center;">time : {{ value }}</p>
+                    <p style="text-align: center;">time : {{ formatTextTimeFromTimeMS(value/1000000) }}</p>
                     <img :src="global.DOMAIN_NAME + global.EXPEDITION" width="150px">
                 </div>
             </div>

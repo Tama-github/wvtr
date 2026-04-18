@@ -11,6 +11,9 @@ importers:
       vue:
         specifier: ^3.5.31
         version: 3.5.32(typescript@6.0.2)
+      vue-cookies:
+        specifier: ^1.8.6
+        version: 1.8.6
     devDependencies:
       '@tsconfig/node24':
         specifier: ^24.0.4
@@ -840,6 +843,9 @@ packages:
   vscode-uri@3.1.0:
     resolution: {integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==}
 
+  vue-cookies@1.8.6:
+    resolution: {integrity: sha512-e2kYaHj1Y/zVsBSM3KWlOoVJ5o3l4QZjytNU7xdCgmkw3521CMUerqHekBGZKXXC1oRxYljBeeOK2SCel6cKuw==}
+
   vue-tsc@3.2.6:
     resolution: {integrity: sha512-gYW/kWI0XrwGzd0PKc7tVB/qpdeAkIZLNZb10/InizkQjHjnT8weZ/vBarZoj4kHKbUTZT/bAVgoOr8x4NsQ/Q==}
     hasBin: true
@@ -1647,6 +1653,8 @@ snapshots:
       fsevents: 2.3.3
 
   vscode-uri@3.1.0: {}
+
+  vue-cookies@1.8.6: {}
 
   vue-tsc@3.2.6(typescript@6.0.2):
     dependencies:

@@ -1,5 +1,6 @@
 import { ref, type Ref } from 'vue'
 import type { CurrentStepRequestMessage, ExpeditionStepResolveInfo, User } from './types';
+import type { VueCookies } from 'vue-cookies';
 
 class global {
     public static readonly DOMAIN_NAME = "https://tama.rhiobet.sh";
@@ -126,11 +127,50 @@ async function launchExpedition(target: Ref<ExpeditionStepResolveInfo | undefine
     }
 }
 
+function formatTextTimeFromTimeMS(timeMS: number) {
+    let res = ""
+    //console.log(distance)
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(timeMS / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((timeMS % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((timeMS % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((timeMS % (1000 * 60)) / 1000);
+
+    if (seconds > 0) {
+        res = seconds + "s"
+    }
+    if (minutes > 0) {
+        res = minutes + "m " + res
+    }
+    if (hours > 0) {
+        res = hours + "h " + res
+    }
+    if (days > 0) {
+        res = days + "d " + res
+    }
+    return res
+}
+
+function getUserIDFromCookiesOrURLParams($cookies: VueCookies | undefined) {
+    let wvtrusrid: string | null = null
+    let urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('wvtrusrid')) {
+        wvtrusrid = urlParams.get('wvtrusrid')
+    } else {
+        if ($cookies) {
+            wvtrusrid = $cookies.get("wvtrusrid")
+        }
+    }
+    return wvtrusrid
+}
+
 export {
     global,
     fetchData,
     postRequest,
     launchExpedition,
     getCurrentExpeditionStepResolveInfo,
+    formatTextTimeFromTimeMS,
+    getUserIDFromCookiesOrURLParams,
     RequestType,
 }
