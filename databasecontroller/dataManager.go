@@ -49,6 +49,7 @@ func CreateTable(db *gorm.DB, toAdd interface{}) {
 }
 
 func createDBDev(db *gorm.DB) {
+	db.AutoMigrate(&databasemodel.HeroAttributes{})
 	db.AutoMigrate(&databasemodel.Hero{})
 	db.AutoMigrate(&databasemodel.Team{})
 	db.AutoMigrate(&databasemodel.GameState{})
@@ -113,10 +114,9 @@ func GetUserByDiscordID(did string) *databasemodel.User {
 	var res *databasemodel.User = nil
 	db.Where("discord_id = ?", did).Find(&res)
 	if res != nil {
-		logger.DumpLog.Println("Got user by discord id:")
-		logger.DumpLog.Println("ID: ", res.ID)
-		logger.DumpLog.Println("Name: ", res.Name)
-		logger.DumpLog.Println("DiscordID: ", res.DiscordID)
+		logger.DumpLog.Println("GetUserByDiscordID: ", did, " | ", res.Name)
+	} else {
+		logger.DumpLog.Println("GetUserByDiscordID: ", did, " | user not found.")
 	}
 	return res
 }
@@ -130,10 +130,13 @@ func UpdateUser(user *databasemodel.User) {
 }
 
 func CreateNewUser(user *databasemodel.User) {
-	logger.DumpLog.Printf("Creating new user:\n")
-	logger.DumpLog.Println("Name: ", user.Name)
-	logger.DumpLog.Println("DiscordID: ", user.DiscordID)
+	logger.DumpLog.Print("CreateNewUser")
 	db.Create(user)
+}
+
+func CreateHero(hero *databasemodel.Hero) {
+	logger.DumpLog.Print("CreateNewHero")
+	db.Create(hero)
 }
 
 func UpdateTeam(user *databasemodel.User) {

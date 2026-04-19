@@ -1,5 +1,9 @@
 package gamelogic
 
+func Solve() {
+	// do solve
+}
+
 // func (g *databasemanager.GameState) ResolveGameState(t *time.Time) *ExpeditionStepResolveInfo {
 // 	idx := -1
 // 	var currentExpStep *ExpeditionStepResolveInfo = nil

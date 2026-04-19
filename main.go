@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -14,6 +13,8 @@ import (
 	"wvtrserv/databasemodel"
 	"wvtrserv/gameexpedition"
 	"wvtrserv/logger"
+	"wvtrserv/nanapi/client"
+	"wvtrserv/utils"
 )
 
 const DOMAIN_NAME = "https://tama.rhiobet.sh"
@@ -49,48 +50,8 @@ type UserToken struct {
 
 var authEndPoints *AuthEndpoints = &AuthEndpoints{}
 
-func readResponse(response *http.Response) {
-	// Read and print response
-	resp, err := io.ReadAll(response.Body)
-	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		return
-	}
-	logger.DumpLog.Println(string(resp))
-}
-
-func fetch(reqURL string, method string, params url.Values, header []string) *http.Response {
-	// Create a new HTTP client
-	client := &http.Client{
-		Timeout: time.Second * 10, // Timeout each requests
-	}
-	req, err := http.NewRequest(method, reqURL, strings.NewReader(params.Encode()))
-	if err != nil {
-		logger.ErrLog.Println("Error creating request:", err)
-		return nil
-	}
-
-	if len(header)%2 != 0 {
-		logger.ErrLog.Println("Error creating header: the number of parameters don't match")
-		return nil
-	}
-
-	// Set headers
-	for i := 0; i < len(header); i += 2 {
-		req.Header.Add(header[i], header[i+1])
-	}
-	// Execute the request using the custom HTTP client
-	response, err := client.Do(req)
-	if err != nil {
-		logger.ErrLog.Println("Error making request:", err)
-		return nil
-	}
-
-	return response
-}
-
 func fetchAuthEndpoints() {
-	resp := fetch(AUTH_SERVER+"/.well-known/openid-configuration", "GET", url.Values{}, []string{"Content-Type", "application/json"})
+	resp := utils.Fetch(AUTH_SERVER+"/.well-known/openid-configuration", "GET", url.Values{}, []string{"Content-Type", "application/json"})
 	if resp == nil {
 		return
 	}
@@ -136,7 +97,7 @@ func handlerConnexion(w http.ResponseWriter, r *http.Request) {
 
 	header := []string{"Content-Type", "application/x-www-form-urlencoded"}
 	logger.DumpLog.Println(params.Encode())
-	tokenResp := fetch(tokenEndpoint, methode, params, header)
+	tokenResp := utils.Fetch(tokenEndpoint, methode, params, header)
 
 	uToken := &UserToken{}
 	err := json.NewDecoder(tokenResp.Body).Decode(uToken)
@@ -146,9 +107,9 @@ func handlerConnexion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Read and print response
-	readResponse(tokenResp)
+	utils.ReadResponse(tokenResp)
 
-	userResp := fetch(authEndPoints.UserInfoEndPoint, "", url.Values{}, []string{"Authorization", "Bearer " + uToken.AccessToken})
+	userResp := utils.Fetch(authEndPoints.UserInfoEndPoint, "", url.Values{}, []string{"Authorization", "Bearer " + uToken.AccessToken})
 	//readResponse(userResp)
 
 	discordAccount := &DiscordAccount{}
@@ -189,6 +150,52 @@ func handlerConnexion(w http.ResponseWriter, r *http.Request) {
 	reqPath := DOMAIN_NAME + "?" + redirectParams.Encode()
 	logger.DumpLog.Println(reqPath)
 	http.Redirect(w, redReq, reqPath, http.StatusSeeOther)
+}
+
+func handleGetPlayerWaicolleAscendedWaifus(w http.ResponseWriter, r *http.Request) {
+	functionS := "[handleGetPlayerWaicolleAscendedWaifus]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
+	ids := r.PathValue("id")
+	id, _ := strconv.Atoi(ids)
+
+	user := databasecontroller.GetUserByID(uint(id))
+
+	waifusResponse := client.GetAvailableWaifuToSendToWVTR(user.DiscordID)
+	if waifusResponse == nil {
+		logger.ErrLog.Printf("%s can't get response from nanpi with user [%d]", functionS, user.ID)
+		return
+	}
+	toSend := utils.ReadResponse(waifusResponse)
+	fmt.Fprintf(w, "%s", toSend)
+}
+
+func handleCreateHeroForPlayer(w http.ResponseWriter, r *http.Request) {
+	functionS := "[handleGetPlayerWaicolleAscendedWaifus]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
+	ids := r.PathValue("id")
+	id, _ := strconv.Atoi(ids)
+	//user := databasecontroller.GetUserByID(uint(id))
+	waifu := &client.Waifu{}
+	err := json.NewDecoder(r.Body).Decode(waifu)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	databasecontroller.CreateHero(&databasemodel.Hero{
+		Name:           waifu.NameUserPreferred,
+		ImageUrl:       waifu.ImageLarge,
+		Level:          1,
+		CurrentXP:      0,
+		CurrentHP:      0,
+		MaxHP:          0,
+		XPBeforeLvlUp:  0,
+		Attributes:     &databasemodel.HeroAttributes{},
+		UserID:         uint(id),
+		WaifuID:        waifu.ID,
+		AnilistCharaID: waifu.IdAl,
+	})
+
 }
 
 // Getters

@@ -13,18 +13,6 @@ type ModelBase struct {
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
-type Hero struct {
-	ModelBase
-	Name         string `json:"name"`
-	ImageUrl     string `json:"imageUrl"`
-	Level        int    `json:"level"`
-	CurrentXP    int    `json:"currentXP"`
-	XPBeforLvlUp int    `json:"xpBeforLvlUp"`
-	CurrentHP    int    `json:"currentHP"`
-	MaxHP        int    `json:"maxHP"`
-	UserID       uint   `json:"-"` // foreign key
-}
-
 type Team struct {
 	ModelBase
 	Heroes []*Hero `gorm:"many2many:team_heroes;" json:"heroes"`

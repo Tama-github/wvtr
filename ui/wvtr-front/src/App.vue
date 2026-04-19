@@ -14,7 +14,6 @@
     
     onMounted(async () => {
         userid.value = getUserIDFromCookiesOrURLParams($cookies)
-        console.log(userid.value)
         if (userid.value == undefined || userid.value == null) {
             const authServer = "https://auth.japan7.bde.enseeiht.fr";
 
@@ -27,21 +26,27 @@
             params.set("redirect_uri", `${global.DOMAIN_NAME}/api/oidc/callback`);
             params.set("scope", "openid profile discord_id");
             authUrl.value = `${config.authorization_endpoint}?${params.toString()}`;
+            window.location.replace(authUrl.value);
         } else {
-            $cookies?.set("wvtrusrid", userid.value)
-            await fetchData<User>(user, RequestType.User, [{id: "id", value: `${userid.value}`}])
+            $cookies?.set("wvtrusrid", userid.value, '30d',undefined, undefined, true, "Strict")
+            let urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('wvtrusrid')) {
+                window.location.replace(global.DOMAIN_NAME);
+            }
         }
     })
 
-    watch(user, (nUser) => {
-        console.log(nUser)
+    watch(userid, async (nUser) => {
+        if (nUser) {
+            await fetchData<User>(user, RequestType.User, [{id: "id", value: `${userid.value}`}])
+        }
     })
 </script>
 
 <template>
 <div v-if="!user" class="page">
-    <a v-if="authUrl" :href="authUrl">Login with OIDC</a>
-    <p v-else>loading auth...</p>
+    <!-- <a v-if="authUrl" :href="authUrl">Login with OIDC</a> -->
+    <p>loading auth...</p>
 </div>
 <div v-else class="page">
     <Header :user="user"/>

@@ -5,6 +5,9 @@ import type { VueCookies } from 'vue-cookies';
 class global {
     public static readonly DOMAIN_NAME = "https://tama.rhiobet.sh";
 
+    //nanapi 
+    public static readonly NANAPI_DOMAIN = "https://https://waicolle.japan7.bde.enseeiht.fr/"
+
     //Request object by id
     public static readonly REQ_HERO = "/hero/{id}";
     public static readonly REQ_TEAM = "/teams/{id}";
@@ -16,6 +19,9 @@ class global {
     //request update objects
     public static readonly REQ_LAUNCHEXPEDITION = "/launchExpedition/{usr}/{expId}";
     public static readonly REQ_UPDATETEAM = "/updateTeam/";
+
+    //nanapi requests 
+    public static readonly REQ_ASCENDEDWAIFU = ""
 
     public static readonly NO_IMAGE = "/imgs/noimage.jpg";
     public static readonly EXPEDITION = "/imgs/expedition.png";
@@ -154,12 +160,12 @@ function formatTextTimeFromTimeMS(timeMS: number) {
 function getUserIDFromCookiesOrURLParams($cookies: VueCookies | undefined) {
     let wvtrusrid: string | null = null
     let urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('wvtrusrid')) {
+    if ($cookies != undefined && $cookies.get("wvtrusrid")) {
+        wvtrusrid = $cookies.get("wvtrusrid")
+        console.log("cookies uid : " + wvtrusrid)
+    } else if (urlParams.has('wvtrusrid')) {
         wvtrusrid = urlParams.get('wvtrusrid')
-    } else {
-        if ($cookies) {
-            wvtrusrid = $cookies.get("wvtrusrid")
-        }
+        console.log("url param uid : " + wvtrusrid)
     }
     return wvtrusrid
 }
