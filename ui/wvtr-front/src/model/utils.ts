@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import type { CurrentStepRequestMessage, ExpeditionStepResolveInfo, User } from './types';
+import type { CurrentStepRequestMessage, ExpeditionStepResolveInfo, Hero, User } from './types';
 import type { VueCookies } from 'vue-cookies';
 
 class global {
@@ -20,8 +20,11 @@ class global {
     public static readonly REQ_LAUNCHEXPEDITION = "/launchExpedition/{usr}/{expId}";
     public static readonly REQ_UPDATETEAM = "/updateTeam/";
 
+    //Create objects
+    public static readonly REQ_CREATEHEROFROMWAIFU = "/createherofromwaifu/{id}"
+
     //nanapi requests 
-    public static readonly REQ_ASCENDEDWAIFU = ""
+    public static readonly REQ_USERWAIFUS = "/userwaifus/{id}"
 
     public static readonly NO_IMAGE = "/imgs/noimage.jpg";
     public static readonly EXPEDITION = "/imgs/expedition.png";
@@ -34,6 +37,8 @@ enum RequestType {
     User,
     AvailableExpeditions,
     CurrentExpeditionStep,
+    UserWaifus,
+    CreateHeroFromWaifu,
 
     LaunchExpedition,
     UpdateTeam,
@@ -60,6 +65,12 @@ function buildRequestPath(reqType: RequestType, pathParams: { id: string; value:
         case RequestType.CurrentExpeditionStep:
             request += global.REQ_CURRENTEXPEDITIONSTEP
             break
+        case RequestType.UserWaifus:
+            request += global.REQ_USERWAIFUS
+            break
+        case RequestType.CreateHeroFromWaifu:
+            request += global.REQ_CREATEHEROFROMWAIFU
+            break
         case RequestType.LaunchExpedition:
             request += global.REQ_LAUNCHEXPEDITION
             break
@@ -84,7 +95,7 @@ async function fetchData<T>(target: Ref<T | undefined>, reqType: RequestType, pa
     target.value = undefined;
 
     let request: string = buildRequestPath(reqType, pathParams)
-
+    console.log(request)
     if (request !== "") {
         console.log("sending get request to : " + request)
         const res = await fetch(request)
@@ -133,6 +144,18 @@ async function launchExpedition(target: Ref<ExpeditionStepResolveInfo | undefine
     }
 }
 
+async function createAnHeroFromAWaifu(target: Ref<Hero | undefined>, user: User) {
+    target.value = undefined
+    // let request: string = buildRequestPath(RequestType.LaunchExpedition)
+    // request = request.replace(`{usr}`, String(user.id))
+    // request = request.replace(`{expId}`, expIdentifier)
+    // const response = await fetch(request);
+    // target.value = await response.json() as ExpeditionStepResolveInfo
+    // if (target.value) {
+    //     user.state.state = target.value.stepState
+    // }
+}
+
 function formatTextTimeFromTimeMS(timeMS: number) {
     let res = ""
     //console.log(distance)
@@ -178,5 +201,6 @@ export {
     getCurrentExpeditionStepResolveInfo,
     formatTextTimeFromTimeMS,
     getUserIDFromCookiesOrURLParams,
+    createAnHeroFromAWaifu,
     RequestType,
 }

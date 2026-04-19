@@ -4,11 +4,13 @@
     import Team from "./Team.vue"
     import TeamManagement from "./TeamManagement.vue"
     import ExpeditionsList from "./ExpeditionsList.vue"
+import Waifus from "./Waifus.vue"
 
     enum HomeStatus {
         Noting = 1,
         ExpeditionManagement,
         TeamManagement,
+        HeroGetter,
     }
 
     const currentHomeStatus = ref(HomeStatus.Noting);
@@ -33,6 +35,9 @@
             <button v-on:click="setHomeStatus(HomeStatus.ExpeditionManagement)">
             launch expedition
             </button>
+            <button v-on:click="setHomeStatus(HomeStatus.HeroGetter)">
+            Check available waifus
+            </button>
         </div>
         <div>
             <TeamManagement v-if="currentHomeStatus == HomeStatus.TeamManagement" 
@@ -40,6 +45,7 @@
                     :ownedHeroes="user.ownedHeroes"/>
             
             <ExpeditionsList v-else-if="currentHomeStatus == HomeStatus.ExpeditionManagement" :user="user"/>
+            <Waifus v-else-if="currentHomeStatus == HomeStatus.HeroGetter" :user="user"/>
         </div>
     <!-- </div> -->
 </template>

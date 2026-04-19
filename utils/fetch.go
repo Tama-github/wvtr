@@ -25,7 +25,7 @@ func ReadResponse(response *http.Response) []byte {
 func Fetch(reqURL string, method string, params url.Values, header []string) *http.Response {
 	// Create a new HTTP client
 	client := &http.Client{
-		Timeout: time.Second * 10, // Timeout each requests
+		Timeout: time.Second * 60, // Timeout each requests
 	}
 
 	req := CreateRequest(reqURL, method, params, header)
@@ -42,10 +42,10 @@ func Fetch(reqURL string, method string, params url.Values, header []string) *ht
 
 func CreateRequest(reqURL string, method string, params url.Values, header []string) *http.Request {
 
-	logger.DumpLog.Println(reqURL)
-	logger.DumpLog.Println(header)
-	logger.DumpLog.Println(method)
-	logger.DumpLog.Println(params.Encode())
+	// logger.DumpLog.Println(reqURL)
+	// logger.DumpLog.Println(header)
+	// logger.DumpLog.Println(method)
+	// logger.DumpLog.Println(params.Encode())
 
 	req, err := http.NewRequest(method, reqURL, strings.NewReader(params.Encode()))
 

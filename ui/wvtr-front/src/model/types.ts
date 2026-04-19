@@ -49,6 +49,14 @@ type CurrentStepRequestMessage = {
     time: number
 }
 
+type Waifu = {
+    id: string,
+    id_al: string,
+    name_user_preferred: string,
+    image_large: string,
+    rank: string,
+}
+
 export type {
     Hero,
     Team,
@@ -56,6 +64,7 @@ export type {
     User,
     ExpeditionStepResolveInfo,
     CurrentStepRequestMessage,
+    Waifu,
 };
 
 export {

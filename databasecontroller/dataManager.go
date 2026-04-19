@@ -106,7 +106,10 @@ func GetUserByID(id uint) *databasemodel.User {
 		Preload("State.ETeam.Heroes").
 		Preload("OwnedHeroes").
 		Find(&res, id)
-	//db.Preload("GameState").Preload("Team").Preload("Hero").Find(&res, id)
+
+	logger.DumpLog.Println("Get user by id ", id)
+	logger.DumpLog.Println(res)
+
 	return res
 }
 

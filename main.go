@@ -107,7 +107,7 @@ func handlerConnexion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Read and print response
-	utils.ReadResponse(tokenResp)
+	//utils.ReadResponse(tokenResp)
 
 	userResp := utils.Fetch(authEndPoints.UserInfoEndPoint, "", url.Values{}, []string{"Authorization", "Bearer " + uToken.AccessToken})
 	//readResponse(userResp)
@@ -160,22 +160,27 @@ func handleGetPlayerWaicolleAscendedWaifus(w http.ResponseWriter, r *http.Reques
 
 	user := databasecontroller.GetUserByID(uint(id))
 
-	waifusResponse := client.GetAvailableWaifuToSendToWVTR(user.DiscordID)
-	if waifusResponse == nil {
+	waifus := client.GetAvailableWaifuToSendToWVTR(user.DiscordID)
+	if waifus == nil {
 		logger.ErrLog.Printf("%s can't get response from nanpi with user [%d]", functionS, user.ID)
 		return
 	}
-	toSend := utils.ReadResponse(waifusResponse)
+
+	toSend, err := json.Marshal(waifus)
+	if err != nil {
+		logger.ErrLog.Println("Can't decode waifu response")
+	}
+	logger.DumpLog.Println("Giving :", len(waifus), " waifus.")
 	fmt.Fprintf(w, "%s", toSend)
 }
 
-func handleCreateHeroForPlayer(w http.ResponseWriter, r *http.Request) {
+func handlerCreateHeroForPlayer(w http.ResponseWriter, r *http.Request) {
 	functionS := "[handleGetPlayerWaicolleAscendedWaifus]"
 	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 	ids := r.PathValue("id")
 	id, _ := strconv.Atoi(ids)
 	//user := databasecontroller.GetUserByID(uint(id))
-	waifu := &client.Waifu{}
+	waifu := &client.JoinWC{}
 	err := json.NewDecoder(r.Body).Decode(waifu)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -193,7 +198,7 @@ func handleCreateHeroForPlayer(w http.ResponseWriter, r *http.Request) {
 		Attributes:     &databasemodel.HeroAttributes{},
 		UserID:         uint(id),
 		WaifuID:        waifu.ID,
-		AnilistCharaID: waifu.IdAl,
+		AnilistCharaID: uint(waifu.IdAl),
 	})
 
 }
@@ -404,13 +409,15 @@ func main() {
 	http.HandleFunc("/teams/{id}", handlerTeam)
 	http.HandleFunc("/user/{id}", handlerUser)
 	http.HandleFunc("/availableexpeditions/", handlerAvailableExpeditions)
+	http.HandleFunc("/userwaifus/{id}", handleGetPlayerWaicolleAscendedWaifus)
 
 	//post
 	http.HandleFunc("/currentexpeditionstep/", handlerCurrentExpeditionStep)
 
-	//Update existing values
+	//Modify db
 	//get
 	http.HandleFunc("/launchExpedition/{usr}/{expId}", handlerLaunchExpedition)
+	http.HandleFunc("/createherofromwaifu/{id}", handlerCreateHeroForPlayer)
 
 	//post
 	http.HandleFunc("/updateTeam/", handlerUpdateTeam)

@@ -1,11 +1,21 @@
 package client
 
-type Waifu struct {
-	ID                string `json:"id"`
-	IdAl              uint   `json:"id_al"`
+type CharachterAL struct {
+	IdAl              int    `json:"id_al"`
 	NameUserPreferred string `json:"name_user_preferred"`
 	ImageLarge        string `json:"image_large"`
 	Rank              string `json:"rank"`
-	// maybe later
-	//CustomImage       string `json:"custom_image"`
+}
+
+type Waifu struct {
+	ID         string        `json:"id"`
+	Charachter *CharachterAL `json:"character"`
+}
+
+type JoinWC struct {
+	ID                string `json:"id"`
+	IdAl              int    `json:"id_al"`
+	NameUserPreferred string `json:"name_user_preferred"`
+	ImageLarge        string `json:"image_large"`
+	Rank              string `json:"rank"`
 }

@@ -70,3 +70,78 @@
     border-radius: 5px;
     width: 150px;
 }
+
+
+.waifu-image-container {
+    position: relative;
+    text-align: center;
+}
+
+.waifu-rank-s {
+    /* color: rgb(255, 255, 255); */
+    background: #ff0000;
+    background: linear-gradient(90deg, rgba(255, 0, 0, 1) 0%, rgba(255, 247, 0, 1) 19%, rgba(38, 255, 0, 1) 36%, rgba(0, 247, 255, 1) 53%, rgba(0, 8, 255, 1) 68%, rgba(255, 0, 255, 1) 82%, rgba(255, 0, 8, 1) 100%);
+    background-clip: inherit;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    font-size: 50px;
+}
+
+.waifu-rank-a {
+    background: #fbff00;
+    background: linear-gradient(90deg, rgba(251, 255, 0, 1) 0%, rgba(235, 231, 164, 1) 19%, rgba(234, 255, 0, 1) 25%, rgba(237, 242, 145, 1) 44%, rgba(246, 250, 0, 1) 68%, rgba(232, 247, 96, 1) 82%, rgba(255, 247, 0, 1) 100%);
+    background-clip: inherit;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    font-size: 50px;
+}
+
+.waifu-rank-b {
+    background: #b5b5b5;
+    background: linear-gradient(90deg, rgba(181, 181, 181, 1) 0%, rgba(240, 240, 240, 1) 19%, rgba(247, 247, 247, 1) 27%, rgba(196, 196, 196, 1) 44%, rgba(232, 232, 232, 1) 59%, rgba(237, 237, 237, 1) 74%, rgba(184, 184, 184, 1) 100%);
+    background-clip: inherit;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    font-size: 50px;
+}
+
+.waifu-rank-c {
+    background: #ffa44f;
+    background: linear-gradient(90deg, rgba(255, 164, 79, 1) 0%, rgba(194, 128, 48, 1) 19%, rgba(227, 170, 84, 1) 31%, rgba(237, 151, 59, 1) 44%, rgba(222, 140, 33, 1) 59%, rgba(255, 177, 94, 1) 74%, rgba(255, 148, 8, 1) 100%);
+    background-clip: inherit;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    font-size: 50px;
+}
+
+.waifu-rank-d {
+    color: #b5b5b5;
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    font-size: 50px;
+    text-shadow: 2px 0 #000000, -2px 0 #000000, 0 2px #000000, 0 -2px #000000,
+        1px 1px #000000, -1px -1px #000000, 1px -1px #000000, -1px 1px #000000;
+}
+
+.waifu-rank-e {
+    color: #000000;
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    font-size: 50px;
+    text-shadow: 2px 0 #000000, -2px 0 #000000, 0 2px #000000, 0 -2px #000000,
+        1px 1px #000000, -1px -1px #000000, 1px -1px #000000, -1px 1px #000000;
+}
