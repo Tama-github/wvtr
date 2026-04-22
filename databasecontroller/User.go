@@ -25,6 +25,10 @@ func GetUserByID(id uint) *data.User {
 		Preload("State.ETeam").
 		Preload("State.ETeam.Heroes").
 		Preload("OwnedHeroes").
+		Preload("OwnedHeroes.Class").
+		Preload("OwnedHeroes.UniqueSkill").
+		Preload("OwnedHeroes.ActiveSkill").
+		Preload("OwnedHeroes.Attributes").
 		Find(&res, id)
 
 	logger.DumpLog.Println("Get user by id ", id)

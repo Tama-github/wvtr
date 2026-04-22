@@ -19,7 +19,7 @@ func NaturalRoll(min float64, max float64) float64 {
 		min, max = max, min
 	}
 
-	return rand.Float64()
+	return rand.Float64()*max + min
 }
 
 // Arrays

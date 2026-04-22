@@ -16,16 +16,14 @@ import InspectButton from './InspectButton.vue';
             <img :src="hero.imageUrl" width="150"/>
             <InspectButton :hero="hero"/>
         </div>
-        <!-- <div class="column"> -->
-        <!-- </div> -->
         
         <div class="column">
             <h1>{{ hero.name }}<label style="font-size: medium;"> lvl.{{ hero.attributes.level }}</label></h1>    
             <div class="column" style="display: inline-flex;">
-                <label>hp : {{ hero.attributes.currentHP }}/{{ hero.attributes.maxHP }} </label>
-                <progress :max="hero.attributes.maxHP" :value="hero.attributes.currentHP" class="hero-progress"/>
-                <label>xp : {{ hero.attributes.currentXP }}/{{ hero.attributes.xpBeforLvlUp }} </label>
-                <progress :max="hero.attributes.xpBeforLvlUp" :value="hero.attributes.currentXP" class="hero-progress"/>
+                <label>hp : {{ hero.attributes.currentHP.toFixed(0) }}/{{ hero.attributes.maxHP.toFixed(0) }} </label>
+                <progress :max="hero.attributes.maxHP.toFixed(0)" :value="hero.attributes.currentHP.toFixed(0)" class="hero-progress"/>
+                <label>xp : {{ hero.attributes.currentXP.toFixed(0) }}/{{ hero.attributes.xpBeforLvlUp.toFixed(0) }} </label>
+                <progress :max="hero.attributes.xpBeforLvlUp.toFixed(0)" :value="hero.attributes.currentXP.toFixed(0)" class="hero-progress"/>
             </div>
         </div>
     </div>

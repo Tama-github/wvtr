@@ -3,6 +3,7 @@
     import type { Team, User } from "../model/types.ts"
     import type { Hero } from "../model/types.ts"
     import { global, postRequest, RequestType } from "../model/utils.ts"
+import InspectButton from "./InspectButton.vue";
 
     // const currentHomeStatus = ref(HomeStatus.Noting);
 
@@ -59,8 +60,14 @@
         </div>
         <div class="row"> 
             <div v-for="h in ownedHeroes">
-                <img v-if="!selectionB[ownedHeroes.indexOf(h)]" class="hnotselected" :src="h.imageUrl" v-on:click="clickOnHero(h)">
-                <img v-else class="hselected" :src="h.imageUrl" v-on:click="clickOnHero(h)">
+                <div v-if="!selectionB[ownedHeroes.indexOf(h)]" v-on:click="clickOnHero(h)" class="waifu-image-container">
+                    <img class="hnotselected" :src="h.imageUrl">
+                    <InspectButton :hero="h"/>
+                </div >
+                <div v-else v-on:click="clickOnHero(h)" class="waifu-image-container">
+                    <img class="hselected" :src="h.imageUrl">
+                    <InspectButton :hero="h"/>
+                </div >
             </div>
         </div>
     </div>
