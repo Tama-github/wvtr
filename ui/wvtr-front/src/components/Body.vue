@@ -2,10 +2,7 @@
     import type { User } from "../model/types.ts"
     import { EncounterState } from "../model/types.ts"
     import Home from "./Home.vue"
-    import Travel from "./Travel.vue"
-    import Fight from "./Fight.vue"
-    import Neutral from "./Neutral.vue"
-import Expedition from "./Expedition.vue"
+    import Expedition from "./Expedition.vue"
 
     const props = defineProps<{
         user: User | undefined;

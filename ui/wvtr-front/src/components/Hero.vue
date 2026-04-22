@@ -2,6 +2,7 @@
     import { ref, watch } from 'vue'
     import type { Hero } from "../model/types.ts"
     import { global } from "../model/utils.ts"
+import InspectButton from './InspectButton.vue';
 
     const props = defineProps<{
         hero: Hero | undefined;
@@ -11,13 +12,21 @@
 
 <template>
     <div v-if="hero" class="hero">
-        <img :src="global.DOMAIN_NAME + hero.imageUrl" width="150"/>
+        <div class="waifu-image-container">
+            <img :src="hero.imageUrl" width="150"/>
+            <InspectButton :hero="hero"/>
+        </div>
+        <!-- <div class="column"> -->
+        <!-- </div> -->
+        
         <div class="column">
-            <h1>{{ hero.name }}<label style="font-size: medium;"> lvl.{{ hero.level }}</label></h1>
-            <label>hp : {{ hero.currentHP }}/{{ hero.maxHP }} </label>
-            <progress :max="hero.maxHP" :value="hero.currentHP"/>
-            <label>xp : {{ hero.currentXP }}/{{ hero.xpBeforLvlUp }} </label>
-            <progress :max="hero.xpBeforLvlUp" :value="hero.currentXP"/>
+            <h1>{{ hero.name }}<label style="font-size: medium;"> lvl.{{ hero.attributes.level }}</label></h1>    
+            <div class="column" style="display: inline-flex;">
+                <label>hp : {{ hero.attributes.currentHP }}/{{ hero.attributes.maxHP }} </label>
+                <progress :max="hero.attributes.maxHP" :value="hero.attributes.currentHP" class="hero-progress"/>
+                <label>xp : {{ hero.attributes.currentXP }}/{{ hero.attributes.xpBeforLvlUp }} </label>
+                <progress :max="hero.attributes.xpBeforLvlUp" :value="hero.attributes.currentXP" class="hero-progress"/>
+            </div>
         </div>
     </div>
     <div v-else class="hero">

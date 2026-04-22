@@ -1,32 +1,32 @@
 package expedition
 
 import (
-	"fmt"
 	"time"
-	"wvtrserv/databasemodel"
+	"wvtrserv/data"
 )
 
 type TravelEvent struct {
 	EEvent
 }
 
-func NewTravelEvent(duration time.Duration) *TravelEvent {
+func NewTravelEvent(duration time.Duration, name string) *TravelEvent {
 	return &TravelEvent{
 		EEvent{
 			duration: duration,
+			name:     name,
 		},
 	}
 }
 
-func (e TravelEvent) GetEventType() databasemodel.EncounterState {
-	return databasemodel.Travel
+func (e TravelEvent) GetEventType() data.EncounterState {
+	return data.Travel
 }
 
-func (e TravelEvent) Solve(startAt time.Time, t *databasemodel.Team) *databasemodel.ExpeditionStepResolveInfo {
-	resolvInfo := fmt.Sprintf("T: {start: %s, end: %s}", startAt.String(), startAt.Add(e.duration).String())
-	return &databasemodel.ExpeditionStepResolveInfo{
-		StepInfos: resolvInfo,
-		StepEndAt: startAt.Add(e.duration),
-		StepState: e.GetEventType(),
-	}
+func (e TravelEvent) Solve(startAt time.Time, t *data.Team) *data.ExpeditionStepResolveInfo {
+	resExp := data.NewExpeditionResolveInfo(e.GetEventType())
+
+	resExp.AddNewHappening(startAt, "Traveling Start")
+	resExp.AddNewHappening(startAt.Add(e.duration), "Traveling End")
+
+	return resExp
 }

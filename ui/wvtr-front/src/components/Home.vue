@@ -1,19 +1,14 @@
 <script setup lang="ts">
-    import { onMounted, ref, watch } from "vue"
-    import type { User } from "../model/types.ts"
+    import { inject, onMounted, ref, watch } from "vue"
+    import type { Hero, User } from "../model/types.ts"
     import Team from "./Team.vue"
     import TeamManagement from "./TeamManagement.vue"
     import ExpeditionsList from "./ExpeditionsList.vue"
 import Waifus from "./Waifus.vue"
+import InspectHero from "./InspectHero.vue"
+import { HomeStatus, NavigationHandler } from "@/model/utils.ts"
 
-    enum HomeStatus {
-        Noting = 1,
-        ExpeditionManagement,
-        TeamManagement,
-        HeroGetter,
-    }
-
-    const currentHomeStatus = ref(HomeStatus.Noting);
+    const navigationHandler = inject<NavigationHandler>('navigationHandler')!
 
     const props = defineProps<{
         user: User;
@@ -21,7 +16,7 @@ import Waifus from "./Waifus.vue"
 
     
     function setHomeStatus (newStatus: HomeStatus) {
-        currentHomeStatus.value = newStatus
+        navigationHandler!.setHomeStatus(newStatus)
     }
 </script>
 
@@ -39,14 +34,13 @@ import Waifus from "./Waifus.vue"
             Check available waifus
             </button>
         </div>
-        <div>
-            <TeamManagement v-if="currentHomeStatus == HomeStatus.TeamManagement" 
-                    :user="user" 
-                    :ownedHeroes="user.ownedHeroes"/>
-            
-            <ExpeditionsList v-else-if="currentHomeStatus == HomeStatus.ExpeditionManagement" :user="user"/>
-            <Waifus v-else-if="currentHomeStatus == HomeStatus.HeroGetter" :user="user"/>
-        </div>
+        <TeamManagement v-if="navigationHandler.getHomeStatus().value == HomeStatus.TeamManagement" 
+                :user="user" 
+                :ownedHeroes="user.ownedHeroes"/>
+        
+        <ExpeditionsList v-else-if="navigationHandler.getHomeStatus().value == HomeStatus.ExpeditionManagement" :user="user"/>
+        <Waifus v-else-if="navigationHandler.getHomeStatus().value == HomeStatus.HeroGetter" :user="user"/>
+        <InspectHero v-else-if="navigationHandler.getHomeStatus().value == HomeStatus.InspectHero"/>
     <!-- </div> -->
 </template>
 

@@ -3,7 +3,8 @@ package expedition
 import (
 	"fmt"
 	"time"
-	"wvtrserv/databasemodel"
+	"wvtrserv/data"
+	"wvtrserv/logger"
 )
 
 type Expedition struct {
@@ -11,14 +12,16 @@ type Expedition struct {
 	Events    []ExpeditionEvent
 }
 
-func (e Expedition) Solve(identifier string, pTeam *databasemodel.Team) *databasemodel.ExpeditionDB {
+func (e Expedition) Solve(identifier string, pTeam *data.Team) *data.ExpeditionDB {
 	fmt.Printf("Solve expedition :\n")
 	var t time.Time = time.Now()
-	happened := make([]*databasemodel.ExpeditionStepResolveInfo, 0)
+	happened := make([]*data.ExpeditionStepResolveInfo, 0)
+	logger.DumpLog.Println("solving expedition: ")
 	for _, ev := range e.Events {
 		happened = append(happened, ev.Solve(t, pTeam))
+		t = t.Add(ev.GetDuration())
 	}
-	edb := &databasemodel.ExpeditionDB{
+	edb := &data.ExpeditionDB{
 		Identifier:   identifier,
 		StartedAt:    t.UTC(),
 		WhatHappened: happened,
@@ -34,7 +37,7 @@ func (e Expedition) GetMinimumTotalTime() time.Duration {
 	return res
 }
 
-func (e Expedition) GetEnemyTeamForEvent(idx int) *databasemodel.Team {
+func (e Expedition) GetEnemyTeamForEvent(idx int) *data.Team {
 	event := e.Events[idx]
 	fight := event.(FightEvent)
 	return fight.ETeam

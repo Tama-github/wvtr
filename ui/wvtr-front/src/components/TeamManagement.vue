@@ -1,8 +1,7 @@
 <script setup lang="ts">
     import { ref, watch } from "vue"
-    import type { User } from "../model/types.ts"
+    import type { Team, User } from "../model/types.ts"
     import type { Hero } from "../model/types.ts"
-    import Team from "./Team.vue"
     import { global, postRequest, RequestType } from "../model/utils.ts"
 
     // const currentHomeStatus = ref(HomeStatus.Noting);
@@ -35,31 +34,34 @@
         console.log("selection filter :" +selectionB)
     }
 
-    function saveTeam() {
+    async function saveTeam() {
         // send request to modify current team de user
         props.user.currentTeam.heroes = selectedH.value
         selectedH = ref<Hero[]>([])
         selectionB.value.fill(false)
-        postRequest<User, User>(ref(undefined), props.user, RequestType.UpdateTeam)
+        let tmpTeam = ref<Team|undefined>(undefined)
+        await postRequest<Team, User>(tmpTeam, props.user, RequestType.UpdateTeam)
+        console.log(tmpTeam)
+        if (tmpTeam.value) {
+            props.user.currentTeam = tmpTeam.value
+        }
     }
 
 </script>
 
 <template>
-    <div class="column">
-        <div class="row"> 
-            <h1>Select You team</h1>
+    <div>
+        <h1>Select You team</h1>
+        <div style="display: flex; align-items: center; justify-content: center;">
+            <div>
+                <button v-on:click="saveTeam()">Save</button>
+            </div>
         </div>
         <div class="row"> 
             <div v-for="h in ownedHeroes">
-                <img v-if="!selectionB[ownedHeroes.indexOf(h)]" class="hnotselected" :src="global.DOMAIN_NAME + h.imageUrl" v-on:click="clickOnHero(h)">
-                <img v-else class="hselected" :src="global.DOMAIN_NAME + h.imageUrl" v-on:click="clickOnHero(h)">
+                <img v-if="!selectionB[ownedHeroes.indexOf(h)]" class="hnotselected" :src="h.imageUrl" v-on:click="clickOnHero(h)">
+                <img v-else class="hselected" :src="h.imageUrl" v-on:click="clickOnHero(h)">
             </div>
-        </div>
-        <div style="align-items: center; justify-content: center;">
-            <button v-on:click="saveTeam()">Save</button>
         </div>
     </div>
 </template>
-
-

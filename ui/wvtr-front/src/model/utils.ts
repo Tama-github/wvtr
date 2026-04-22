@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import type { CurrentStepRequestMessage, ExpeditionStepResolveInfo, Hero, User } from './types';
+import type { CurrentStepRequestMessage, ExpeditionStepResolveInfo, Hero, User, Waifu } from './types';
 import type { VueCookies } from 'vue-cookies';
 
 class global {
@@ -28,6 +28,39 @@ class global {
 
     public static readonly NO_IMAGE = "/imgs/noimage.jpg";
     public static readonly EXPEDITION = "/imgs/expedition.png";
+}
+
+enum HomeStatus {
+    Noting = 1,
+    ExpeditionManagement,
+    TeamManagement,
+    HeroGetter,
+    InspectHero,
+}
+
+class NavigationHandler {
+    homeStatus = ref(HomeStatus.Noting)
+    heroToInspect = ref<Hero | undefined>(undefined)
+
+    constructor() {
+        this.homeStatus.value = HomeStatus.Noting
+    }
+
+    setHomeStatus(newHomeStatus: HomeStatus): void {
+        this.homeStatus.value = newHomeStatus
+    }
+
+    getHomeStatus() {
+        return this.homeStatus
+    }
+
+    setHeroToInspect(h: Hero) {
+        this.heroToInspect.value = h
+    }
+
+    getHeroToInspect() {
+        return this.heroToInspect
+    }
 }
 
 enum RequestType {
@@ -106,7 +139,8 @@ async function fetchData<T>(target: Ref<T | undefined>, reqType: RequestType, pa
 async function postRequest<AnswerType, BodyType>(
     answer: Ref<AnswerType | undefined>,
     dataToSend: BodyType,
-    requestType: RequestType,) {
+    requestType: RequestType,
+    pathParams: [{ id: string; value: string }] | undefined = undefined) {
 
     answer.value = undefined;
     const requestOptions = {
@@ -115,8 +149,8 @@ async function postRequest<AnswerType, BodyType>(
         body: JSON.stringify(dataToSend)
     };
 
-    let request = buildRequestPath(requestType)
-
+    let request = buildRequestPath(requestType, pathParams)
+    console.log(request)
     if (request !== "") {
         console.log("sending post request to : " + request)
         const res = await fetch(request, requestOptions)
@@ -144,16 +178,9 @@ async function launchExpedition(target: Ref<ExpeditionStepResolveInfo | undefine
     }
 }
 
-async function createAnHeroFromAWaifu(target: Ref<Hero | undefined>, user: User) {
-    target.value = undefined
-    // let request: string = buildRequestPath(RequestType.LaunchExpedition)
-    // request = request.replace(`{usr}`, String(user.id))
-    // request = request.replace(`{expId}`, expIdentifier)
-    // const response = await fetch(request);
-    // target.value = await response.json() as ExpeditionStepResolveInfo
-    // if (target.value) {
-    //     user.state.state = target.value.stepState
-    // }
+async function createAHeroFromAWaifu(target: Ref<Hero | undefined>, waifu: Waifu, user: User) {
+    console.log(waifu)
+    postRequest<Hero, Waifu>(target, waifu, RequestType.CreateHeroFromWaifu, [{ id: "id", value: `${user.id}` }])
 }
 
 function formatTextTimeFromTimeMS(timeMS: number) {
@@ -180,6 +207,25 @@ function formatTextTimeFromTimeMS(timeMS: number) {
     return res
 }
 
+function isUserIdInRequestParams(): boolean {
+    let urlParams = new URLSearchParams(window.location.search);
+    return urlParams.has('wvtrusrid')
+}
+
+function isUserIdInCookies($cookies: VueCookies): boolean {
+    return $cookies.get("wvtrusrid") != undefined
+}
+
+function getUserIdFromRequestParams(): string | null {
+    let urlParams = new URLSearchParams(window.location.search);
+    let res = urlParams.get('wvtrusrid')
+    return !res ? null : res
+}
+
+function getUserIdFromCookies($cookies: VueCookies): string | null {
+    return $cookies.get("wvtrusrid")
+}
+
 function getUserIDFromCookiesOrURLParams($cookies: VueCookies | undefined) {
     let wvtrusrid: string | null = null
     let urlParams = new URLSearchParams(window.location.search);
@@ -201,6 +247,12 @@ export {
     getCurrentExpeditionStepResolveInfo,
     formatTextTimeFromTimeMS,
     getUserIDFromCookiesOrURLParams,
-    createAnHeroFromAWaifu,
+    createAHeroFromAWaifu,
+    isUserIdInCookies,
+    isUserIdInRequestParams,
+    getUserIdFromRequestParams,
+    getUserIdFromCookies,
     RequestType,
+    HomeStatus,
+    NavigationHandler,
 }

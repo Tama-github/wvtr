@@ -1,12 +1,11 @@
 package expedition
 
 import (
-	"fmt"
 	"time"
-	"wvtrserv/databasemodel"
+	"wvtrserv/data"
 )
 
-type HappeningType func(*databasemodel.Team) string
+type HappeningType func(*data.Team, *data.ExpeditionStepResolveInfo)
 
 /***********************/
 /***  Neutral Event  ***/
@@ -16,26 +15,26 @@ type NeutralEvent struct {
 	Happening HappeningType
 }
 
-func NewNeutralEvent(duration time.Duration, h HappeningType) *NeutralEvent {
+func NewNeutralEvent(duration time.Duration, name string, h HappeningType) *NeutralEvent {
 	return &NeutralEvent{
 		EEvent: EEvent{
 			duration: duration,
+			name:     name,
 		},
 		Happening: h,
 	}
 }
 
-func (e NeutralEvent) GetEventType() databasemodel.EncounterState {
-	return databasemodel.Neutral
+func (e NeutralEvent) GetEventType() data.EncounterState {
+	return data.Neutral
 }
 
-func (e NeutralEvent) Solve(startAt time.Time, t *databasemodel.Team) *databasemodel.ExpeditionStepResolveInfo {
+func (e NeutralEvent) Solve(startAt time.Time, t *data.Team) *data.ExpeditionStepResolveInfo {
+	resExp := data.NewExpeditionResolveInfo(e.GetEventType())
 
-	resolvInfo := fmt.Sprintf("T: {start: %s, end: %s, %s}", startAt.String(), startAt.Add(e.duration).String(), e.Happening(t))
-	fmt.Printf("Solve neutral event : %s\n", resolvInfo)
-	return &databasemodel.ExpeditionStepResolveInfo{
-		StepInfos: resolvInfo,
-		StepEndAt: startAt.Add(e.duration),
-		StepState: e.GetEventType(),
-	}
+	resExp.AddNewHappening(startAt, "Traveling Start")
+	e.Happening(t, resExp)
+	resExp.AddNewHappening(startAt.Add(e.duration), "Traveling End")
+
+	return resExp
 }

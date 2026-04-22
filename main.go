@@ -9,9 +9,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"wvtrserv/data"
 	"wvtrserv/databasecontroller"
-	"wvtrserv/databasemodel"
-	"wvtrserv/gameexpedition"
+	"wvtrserv/gamedata"
+	"wvtrserv/gamelogic/hero"
 	"wvtrserv/logger"
 	"wvtrserv/nanapi/client"
 	"wvtrserv/utils"
@@ -124,14 +125,14 @@ func handlerConnexion(w http.ResponseWriter, r *http.Request) {
 	// this means it's the first time the user arrive here.
 	// and we need to create a new user based on the discord account info
 	if user.DiscordID == "" {
-		user = &databasemodel.User{
+		user = &data.User{
 			Name: discordAccount.Name,
-			CurrentTeam: &databasemodel.Team{
-				Heroes: make([]*databasemodel.Hero, 0),
+			CurrentTeam: &data.Team{
+				Heroes: make([]*data.Hero, 0),
 			},
-			OwnedHeroes: make([]*databasemodel.Hero, 0),
-			State: &databasemodel.GameState{
-				State: databasemodel.Home,
+			OwnedHeroes: make([]*data.Hero, 0),
+			State: &data.GameState{
+				State: data.Home,
 			},
 			DiscordID: discordAccount.DiscordID,
 		}
@@ -159,16 +160,20 @@ func handleGetPlayerWaicolleAscendedWaifus(w http.ResponseWriter, r *http.Reques
 	id, _ := strconv.Atoi(ids)
 
 	user := databasecontroller.GetUserByID(uint(id))
+	toSend := "{}"
 
 	waifus := client.GetAvailableWaifuToSendToWVTR(user.DiscordID)
 	if waifus == nil {
 		logger.ErrLog.Printf("%s can't get response from nanpi with user [%d]", functionS, user.ID)
+		fmt.Fprintf(w, "%s", toSend)
 		return
 	}
 
-	toSend, err := json.Marshal(waifus)
+	strsend, err := json.Marshal(waifus)
+	toSend = string(strsend)
 	if err != nil {
 		logger.ErrLog.Println("Can't decode waifu response")
+		fmt.Fprintf(w, "%s", toSend)
 	}
 	logger.DumpLog.Println("Giving :", len(waifus), " waifus.")
 	fmt.Fprintf(w, "%s", toSend)
@@ -187,20 +192,25 @@ func handlerCreateHeroForPlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	databasecontroller.CreateHero(&databasemodel.Hero{
-		Name:           waifu.NameUserPreferred,
-		ImageUrl:       waifu.ImageLarge,
-		Level:          1,
-		CurrentXP:      0,
-		CurrentHP:      0,
-		MaxHP:          0,
-		XPBeforeLvlUp:  0,
-		Attributes:     &databasemodel.HeroAttributes{},
-		UserID:         uint(id),
-		WaifuID:        waifu.ID,
-		AnilistCharaID: uint(waifu.IdAl),
-	})
+	logger.DumpLog.Println(waifu)
 
+	newH := hero.CreateNewHeroFromDBWaifuInfos(waifu)
+	newH.UserID = uint(id)
+
+	errReq := databasecontroller.CreateHero(newH)
+	if errReq != nil {
+		logger.ErrLog.Println("Can't Create new hero: ", errReq)
+		fmt.Fprintf(w, "%s is already a hero", waifu.NameUserPreferred)
+		return
+	}
+	stosend, err := json.Marshal(newH)
+
+	if err != nil {
+		logger.ErrLog.Println("Can't marshal new hero")
+		return
+	}
+
+	fmt.Fprintf(w, "%s", stosend)
 }
 
 // Getters
@@ -242,7 +252,7 @@ func handlerAvailableExpeditions(w http.ResponseWriter, r *http.Request) {
 	functionS := "[handlerAvailableExpeditions]"
 	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 
-	expeditions := gameexpedition.GetAvailableExpeditions()
+	expeditions := gamedata.GetAvailableExpeditions()
 
 	b, err := json.Marshal(expeditions)
 	if err != nil {
@@ -280,7 +290,7 @@ func handlerSaveUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, s, http.StatusMethodNotAllowed)
 		return
 	}
-	user := &databasemodel.User{}
+	user := &data.User{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
 		logger.ErrLog.Printf("%s Error when trying to get the user from the request body, got : %s", functionS, r.Body)
@@ -308,7 +318,7 @@ func handlerUpdateTeam(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, s, http.StatusMethodNotAllowed)
 		return
 	}
-	user := &databasemodel.User{}
+	user := &data.User{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
 		logger.ErrLog.Printf("%s Error when trying to get the user from the request body, got : %s", functionS, r.Body)
@@ -316,15 +326,17 @@ func handlerUpdateTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.Marshal(user)
+	databasecontroller.UpdateTeam(user)
+	user = databasecontroller.GetUserByID(user.ID)
+	b, err := json.Marshal(user.CurrentTeam)
 	if err != nil {
 		logger.ErrLog.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	logger.DumpLog.Printf("%s Giving :\n %s\n", functionS, string(b))
-	databasecontroller.UpdateTeam(user)
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "{}")
+	fmt.Fprintf(w, "%s", string(b))
 }
 
 type CurrentStepRequestMessage struct {
@@ -381,7 +393,7 @@ func handlerLaunchExpedition(w http.ResponseWriter, r *http.Request) {
 
 	user := databasecontroller.GetUserByID(uint(id))
 
-	databasecontroller.LaunchExpedition(user, gameexpedition.Expeditions[expIdentifier].Solve(expIdentifier, user.CurrentTeam))
+	databasecontroller.LaunchExpedition(user, gamedata.Expeditions[expIdentifier].Solve(expIdentifier, user.CurrentTeam))
 	b, err := json.Marshal(user.State.CurrentExpedition.WhatHappened[0])
 	if err != nil {
 		logger.ErrLog.Println(err)

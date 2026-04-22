@@ -36,8 +36,8 @@
     <div class="column">
         <div>{{ props.waifu.name_user_preferred }}</div>
         <div class="waifu-image-container">
-            <img :src="props.waifu.image_large" width="150"/>
-            <div :class="rankTextClass" text>{{ props.waifu.rank }}</div>
+            <img :src="props.waifu.image_large" width="125"/>
+            <div :class="rankTextClass">{{ props.waifu.rank }}</div>
         </div>
     </div>
 </template>

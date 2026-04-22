@@ -14,6 +14,7 @@
     const timertxt = ref("")
 
     const answer = ref<ExpeditionStepResolveInfo|undefined>(undefined)
+    const tmp = ref<ExpeditionStepResolveInfo|undefined>(undefined)
     onMounted(async () => {
         await getCurrentExpeditionStepResolveInfo(answer, props.user.id) 
     })
@@ -35,7 +36,8 @@
         // If the count down is finished, write some text
         if (distance < 0) {
             timertxt.value = "finished"
-            await getCurrentExpeditionStepResolveInfo(answer, props.user.id) 
+            await getCurrentExpeditionStepResolveInfo(tmp, props.user.id) 
+            answer.value = tmp.value
         }
     }
     
@@ -54,7 +56,7 @@
     }
 
     watch(answer, (newtarget)=>{
-        if (newtarget) {
+        if (newtarget && newtarget.stepState) {
             props.user.state.state = newtarget.stepState
             timer = launchTimer()
         } else {

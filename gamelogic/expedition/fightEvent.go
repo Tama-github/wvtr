@@ -1,36 +1,39 @@
 package expedition
 
 import (
-	"fmt"
 	"time"
-	"wvtrserv/databasemodel"
+	"wvtrserv/data"
 )
 
 type FightEvent struct {
 	EEvent
-	ETeam *databasemodel.Team
+	ETeam *data.Team
 }
 
-func NewFightEvent(t *databasemodel.Team) *FightEvent {
+func NewFightEvent(t *data.Team, name string) *FightEvent {
 	return &FightEvent{
 		EEvent: EEvent{
 			duration: 0,
+			name:     name,
 		},
-		ETeam: t,
+		ETeam: (*data.Team)(t),
 	}
 }
 
-func (e FightEvent) GetEventType() databasemodel.EncounterState {
-	return databasemodel.Fight
+func (e FightEvent) GetEventType() data.EncounterState {
+	return data.Fight
 }
 
-func (fEvent FightEvent) Solve(startAt time.Time, team *databasemodel.Team) *databasemodel.ExpeditionStepResolveInfo {
-	resolvInfo := fmt.Sprintf("T: {start: %s, end: %s}", startAt.String(), startAt.Add(fEvent.duration).String())
-	fmt.Printf("Solve fight event : %s\n", resolvInfo)
-	//fEvent.ETeam.Heroes[0] team.Heroes[0].
-	return &databasemodel.ExpeditionStepResolveInfo{
-		StepInfos: resolvInfo,
-		StepEndAt: startAt.Add(fEvent.duration),
-		StepState: fEvent.GetEventType(),
-	}
+func (e FightEvent) Solve(startAt time.Time, heroTeam *data.Team) *data.ExpeditionStepResolveInfo {
+	resExp := data.NewExpeditionResolveInfo(e.GetEventType())
+
+	resExp.AddNewHappening(startAt, "Traveling Start")
+	Fight(heroTeam, e.ETeam, resExp)
+	resExp.AddNewHappening(startAt.Add(e.duration), "Traveling End")
+
+	return resExp
+}
+
+func Fight(heroTeam *data.Team, enemyTeam *data.Team, infos *data.ExpeditionStepResolveInfo) {
+
 }

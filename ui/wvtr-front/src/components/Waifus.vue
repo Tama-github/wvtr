@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    import { onMounted, ref, watch } from "vue"
+    import { inject, onMounted, ref, watch } from "vue"
     import type { ExpeditionStepResolveInfo, User, Waifu } from "../model/types.ts"
     import type { Hero } from "../model/types.ts"
     import Team from "./Team.vue"
-    import { global, fetchData, RequestType, postRequest, launchExpedition, formatTextTimeFromTimeMS, createAnHeroFromAWaifu } from "../model/utils.ts"
+    import { global, fetchData, RequestType, postRequest, launchExpedition, formatTextTimeFromTimeMS, createAHeroFromAWaifu, NavigationHandler, HomeStatus } from "../model/utils.ts"
     import WaifuComp from "./WaifuComp.vue"
 
     // const currentHomeStatus = ref(HomeStatus.Noting);
@@ -13,6 +13,7 @@
     }>();
 
     let userWaifus = ref<Waifu[]|undefined>(undefined)
+    const navigationHandler = inject<NavigationHandler>('navigationHandler')!
 
     onMounted(async () => {
         await fetchData<Waifu[]>(userWaifus, RequestType.UserWaifus, [{id: "id", value: `${props.user.id}`}]) 
@@ -49,14 +50,21 @@
         }
     }
 
+    const createdHero = ref<Hero|undefined>(undefined)
     async function onclick() {
-        createAnHeroFromAWaifu(ref<Hero|undefined>(undefined), props.user)
+        if (selectedWaifu.value) {
+            await createAHeroFromAWaifu(createdHero, selectedWaifu.value, props.user)
+            
+        }
     }
-    // watch(expStepInfo, (newExpInfo) => {
-    //     if (newExpInfo) {
-    //         props.user.state.state = newExpInfo.stepState
-    //     }
-    // })
+    watch(createdHero, (newh) => {
+        if (newh) {
+            console.log("add h to owned h")
+            props.user.ownedHeroes.push(newh)
+            navigationHandler.setHeroToInspect(newh)
+            navigationHandler.setHomeStatus(HomeStatus.InspectHero)
+        }
+    })
 
 </script>
 
@@ -65,14 +73,13 @@
         <h1>Select a Waifu</h1>
         <div style="display: flex; align-items: center; justify-content: center;">
             <div>
-                <button v-on:click="onclick()">Get hero</button>
+                <button v-on:click="onclick()">Make a hero</button>
             </div>
         </div>
         <div class="column">
             <div class="row" style="display: flex;flex-wrap: wrap;"> 
                 <WaifuComp v-for="w in userWaifus" v-on:click="clickOnWaifu(w)" :waifu="w" :class="selectionB[w.id]"/>
             </div>
-            
         </div>
     </div>
     <div v-else>
