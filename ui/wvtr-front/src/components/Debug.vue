@@ -21,7 +21,7 @@
 </script>
 
 <template>
-    <!-- <p v-if="JSON.stringify(jsonres)==='{}'">Chargement...</p>
+    <!-- <p v-if="JSON.stringify(jsonres)==='{}'">Loading...</p>
     <div v-else>
         <p> {{ JSON.stringify(jsonres) }} </p>
         <p> {{ jsonres.id }} </p>

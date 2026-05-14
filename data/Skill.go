@@ -44,18 +44,62 @@ const (
 
 func IsLuckyActivate(x float64) bool {
 	roll := NaturalRoll(0, 1)
-	target := (x * x) / (200 * (x * x))
+	target := 1 - ((x * x) / (200 * x))
 	return RollCheck(roll, target)
 }
 
-func (s Skill) UseLucky(from *Hero) string {
+func (s *Skill) UseLucky(from *Hero) bool {
 	if s.Identifier != Lucky {
-		return ""
+		return false
 	}
-	if IsLuckyActivate(float64(from.Attributes.GetLuck())) {
-		return "Activate"
+	return IsLuckyActivate(float64(from.Attributes.GetLuck()))
+}
+
+func (s *Skill) UseSecondWind(from *Hero) bool {
+	if s.Identifier != SecondWind {
+		return false
 	}
-	return ""
+	if s.HaveBeenUsed {
+		return false
+	}
+	s.HaveBeenUsed = true
+	return true
+}
+
+func (s *Skill) UseTrickster(from *Hero) bool {
+	if s.Identifier != Trickster {
+		return false
+	}
+	lck := float64(from.Attributes.GetLuck())
+	dex := float64(from.Attributes.GetDexterity())
+	x := (dex + lck) / 2
+	roll := NaturalRoll(0, 1)
+	target := 1 - ((x * x) / (200 * x))
+	return RollCheck(roll, target)
+}
+
+func (s *Skill) Use(from *Hero) bool {
+	switch s.Identifier {
+	case Lucky:
+		return s.UseLucky(from)
+	case GoodRest:
+		return true
+	case SecondWind:
+		return s.UseSecondWind(from)
+	case Prodigy:
+		return true
+	case Berserk:
+		return true
+	case Trickster:
+		return s.UseTrickster(from)
+	case FastLearner:
+		return true
+		// case ElementalCursed:
+		// 	return true
+		// case PhysicalCursed:
+		// 	return true
+	}
+	return false
 }
 
 func WeaponAttackAction(from *Hero, target *Hero, fad *FieldActionDesc) *FieldActionDesc {

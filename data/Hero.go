@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"strings"
+	"math"
 	"time"
 	"wvtrserv/logger"
 )
@@ -14,6 +14,7 @@ const (
 	Dodged
 	Blocked
 	Died
+	SecondWindUsed
 	Crit
 )
 
@@ -24,6 +25,10 @@ func NewHero() *Hero {
 func (h *Hero) ClearAllStatusAndSetToFullLife() {
 	h.Attributes.CurrentHP = h.Attributes.MaxHP
 	// TODO: Clear special status if there are any
+}
+
+func (h *Hero) SetUSkillUsed(used bool) {
+	h.UniqueSkill.HaveBeenUsed = used
 }
 
 func (h Hero) IsDefeated() bool {
@@ -45,9 +50,9 @@ func (h *Hero) GoToLevel(level int) {
 }
 
 func (h *Hero) GainXP(amount float64) {
-	// if h.HasUniqueSkill(FastLearner) {
-	// 	amount = amount * fast_learner.xp_multiplier
-	// }
+	if h.HasUniqueSkill(FastLearner) && h.UniqueSkill.Use(h) {
+		amount = amount * (20.0 / 100.0)
+	}
 
 	for amount > 0 {
 		thresholdForCurrentLevel := h.Attributes.LevelThreshold()
@@ -69,11 +74,15 @@ func (h *Hero) IncreaseAttributeWithRate() {
 	for i := range len(grs) {
 		// this is in case the proba is above 100%
 		// we add the int part and rand on the float part
-		toadd := float64(int(grs[i]))
-		proba := grs[i] - toadd
+		gr := grs[i]
+		if h.HasUniqueSkill(Prodigy) && h.UniqueSkill.Use(h) {
+			gr += (attrs[IntelligenceID] + attrs[LuckID]) / 200
+		}
+
+		toadd := float64(int(gr))
+		proba := gr - toadd
 		if RollCheck(NaturalRoll(0, 1), 1-proba) {
 			toadd++
-
 		}
 		attrs[i] += toadd
 	}
@@ -120,7 +129,7 @@ func (h *Hero) RollNumber(min float64, max float64) float64 {
 	resRoll := NaturalRoll(min, max)
 
 	// Lucky
-	if h.UniqueSkill != nil && strings.Compare(h.UniqueSkill.UseLucky(h), "Activate") == 0 {
+	if h.HasUniqueSkill(Lucky) && h.UniqueSkill.Use(h) {
 		skillRoll := NaturalRoll(min, max)
 		if resRoll < skillRoll {
 			resRoll = skillRoll
@@ -176,7 +185,11 @@ func (h *Hero) Play(when time.Time, friends *Team, enemies *Team, fightReport *E
 	fad := what.UseActive(h, target)
 	logger.DumpLog.Println(fad.String())
 	fightReport.AddNewHappening(when, report, fad)
-	return what.RecuperationDuration
+	res := what.RecuperationDuration
+	if h.HasUniqueSkill(Trickster) && h.UniqueSkill.Use(h) {
+		res -= res * time.Duration(math.Min(float64(h.Attributes.GetDexterity()/100), 0.5)) * time.Second
+	}
+	return res
 }
 
 func (h *Hero) takeFlatDamage(dmg float64) {
@@ -210,6 +223,10 @@ func (h *Hero) Rest(heal float64) float64 {
 }
 
 func (h *Hero) TakeDamage(dmg *Damage, takeFrom *Hero, fad *FieldActionDesc) *FieldActionDesc {
+	if takeFrom.HasUniqueSkill(Berserk) && takeFrom.UniqueSkill.Use(takeFrom) {
+		dmg = dmg.GetDamageWithBerserk()
+	}
+
 	// check dodge
 	if h.Dodge(takeFrom) {
 		fad.TargetStatus |= Dodged
@@ -225,7 +242,7 @@ func (h *Hero) TakeDamage(dmg *Damage, takeFrom *Hero, fad *FieldActionDesc) *Fi
 	// check resistances
 	actualDamage := dmg.ApplyRes(h.GetTotalRes())
 	dmgSum := 0.0
-	// get total tamage taken
+	// get total damage taken
 	for _, d := range actualDamage.GetDamageArray() {
 		dmgSum += d
 	}
@@ -238,8 +255,13 @@ func (h *Hero) TakeDamage(dmg *Damage, takeFrom *Hero, fad *FieldActionDesc) *Fi
 
 	// check if dead
 	if h.IsDefeated() {
-		fad.TargetStatus |= Died
-		return fad
+		if h.HasUniqueSkill(SecondWind) && h.UniqueSkill.Use(h) {
+			h.ClearAllStatusAndSetToFullLife()
+			fad.TargetStatus |= SecondWindUsed
+		} else {
+			fad.TargetStatus |= Died
+			return fad
+		}
 	}
 
 	return fad
@@ -250,8 +272,12 @@ func (h *Hero) InitiativeRoll() time.Duration {
 	dex := h.Attributes.Dexterity
 
 	initiativeRoll := h.RollNumber(0.5, dex)
-	secInitiative := time.Duration((5.0/initiativeRoll)+5.0) * time.Second
+
+	secInitiative := time.Duration((5.0/initiativeRoll)+2.0) * time.Second
 	resInit := secInitiative + time.Duration(NaturalRoll(-100000, 100000))*time.Nanosecond
+	if h.HasUniqueSkill(Trickster) && h.UniqueSkill.Use(h) {
+		secInitiative -= secInitiative * time.Duration(math.Min(float64(dex/100), 0.5)) * time.Second
+	}
 	return resInit
 }
 

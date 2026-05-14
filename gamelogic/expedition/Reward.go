@@ -53,7 +53,7 @@ func (r *Reward) GenRandomReward() {
 	}
 	if len(r.Pool.ItemBasePool) > 0 {
 		rates := data.MakeUniformArrayRates(r.Pool.ItemBasePool)
-		idx := data.RollInArrayWithRate(data.NaturalRoll(0, 1), rates)
+		idx := data.RollInArrayWithRate(data.NaturalRoll(0, float64(len(rates))), rates)
 		equipable := r.Pool.ItemBasePool[idx].GenEquipment()
 		switch e := equipable.(type) {
 		case *data.Weapon:

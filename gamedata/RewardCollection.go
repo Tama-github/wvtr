@@ -32,8 +32,8 @@ var plainsRewardPool *expedition.RewardPool = &expedition.RewardPool{
 var craftRewardPool *expedition.RewardPool = &expedition.RewardPool{
 	ItemBasePool: []data.IEquipableBase{
 		SwordBase,
-		// DaggerBase,
-		// HammerBase,
+		DaggerBase,
+		HammerBase,
 	},
 	CurrencyPool: map[data.CurrencyType]data.StatsRange{
 		data.Gold:   {Min: 0, Max: 0},

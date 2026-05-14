@@ -65,6 +65,12 @@ func (f FightTurnOrderTimeline) getNextAction(t time.Time) *Action {
 	return nil
 }
 
+func (team *Team) ResetSkills() {
+	for _, h := range team.Heroes {
+		h.SetUSkillUsed(false)
+	}
+}
+
 func (team *Team) Fight(oponent *Team, fightReport *ExpeditionStepResolveInfo) {
 	startTime := fightReport.Timeline[0].When
 

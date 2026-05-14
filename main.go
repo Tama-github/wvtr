@@ -350,6 +350,7 @@ func handlerLaunchExpedition(w http.ResponseWriter, r *http.Request) {
 		databasecontroller.SaveInventory(user.Inventory)
 		c := data.NewCurrencyOwned(databasecontroller.GetAllCurrencies())
 		databasecontroller.LaunchExpedition(user, exp.Solve(expIdentifier, user.CurrentTeam, c))
+		user.CurrentTeam.ResetSkills()
 
 		utils.Give(user.State.CurrentExpedition.WhatHappened[0], w, true)
 		return

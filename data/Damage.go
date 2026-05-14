@@ -66,3 +66,15 @@ func (d *Damage) ApplyRes(hRes *Damage) *Damage {
 
 	return res
 }
+
+func (d *Damage) GetDamageWithBerserk() *Damage {
+	res := &Damage{}
+	res.BluntDmg = d.BluntDmg * (1.2)
+	res.PierceDmg = d.PierceDmg * (1.2)
+	res.SlashDmg = d.SlashDmg * (1.2)
+	res.FireDmg = d.FireDmg
+	res.FrostDmg = d.FrostDmg
+	res.LightningDmg = d.LightningDmg
+
+	return res
+}

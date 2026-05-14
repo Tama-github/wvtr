@@ -67,7 +67,7 @@ var skillCollection []*data.Skill = []*data.Skill{
 		Type:        data.Unique,
 		Targeting:   data.Self,
 		ImageURL:    "/imgs/skills/Skill_fast_learner.png",
-		Description: "Reduction of a random (lck/dex) amount of XP to level up. Determined each time the Hero level up",
+		Description: "Gain 20% more xp",
 		Weight:      30,
 	},
 	// Active

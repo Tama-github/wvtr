@@ -20,6 +20,6 @@ import type { NavigationHandler } from "@/tools/navigationHandler.ts";
         </div>
     </div>
     <div v-else>
-        <h1>Chargement ...</h1>
+        <h1>Loading...</h1>
     </div>
 </template>

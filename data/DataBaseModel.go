@@ -269,6 +269,7 @@ type Skill struct {
 	ImageURL             string        `json:"image_url"`
 	Description          string        `json:"description"`
 	Weight               float64       `json:"-"`
+	HaveBeenUsed         bool          `json:"-"`
 }
 
 type Hero struct {
