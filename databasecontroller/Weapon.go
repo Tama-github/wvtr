@@ -16,5 +16,23 @@ func GetWeaponByID(id uint) *data.Weapon {
 }
 
 func SaveWeapon(o *data.Weapon) {
+	SaveDamage(o.BaseDamage)
+	SaveStatsRange(o.BaseAttackSpeed)
+	SaveStatsRange(o.BaseCritRate)
+	for _, a := range o.Affixes {
+		SaveAffixe(a)
+	}
+	db.Save(o)
+}
+
+func CreateWeapon(o *data.Weapon) {
+	CreateDamage(o.BaseDamage)
+	CreateStatsRange(o.BaseAttackSpeed)
+	CreateStatsRange(o.BaseCritRate)
+	for _, a := range o.Affixes {
+		CreateAffixe(a)
+	}
+	o.BaseAttackSpeedID = o.BaseAttackSpeed.ID
+	o.BaseCritRateID = o.BaseCritRate.ID
 	db.Save(o)
 }

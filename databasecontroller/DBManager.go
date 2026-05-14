@@ -66,6 +66,7 @@ func Delete[T any](row T) {
 func LaunchExpedition(user *data.User, expedition *data.ExpeditionDB) {
 	// TODO: Check expedition integrity
 	if user.UserIsHome() && !user.UserHasAProblem() {
+		CreateExpeditionDB(expedition)
 		user.State.CurrentExpedition = expedition
 		user.State.State = expedition.WhatHappened[0].StepState
 

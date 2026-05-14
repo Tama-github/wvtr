@@ -46,3 +46,19 @@ func SaveInventory(inv *data.Inventory) {
 		SaveCurrencyOwned(c)
 	}
 }
+
+func CreateInventory(inv *data.Inventory) {
+	for _, w := range inv.Weapons {
+		w.InventoryID = inv.ID
+		CreateWeapon(w)
+	}
+	for _, a := range inv.Armors {
+		a.InventoryID = inv.ID
+		CreateArmor(a)
+	}
+	for _, o := range inv.Omamoris {
+		o.InventoryID = inv.ID
+		CreateOmamori(o)
+	}
+	db.Create(inv)
+}

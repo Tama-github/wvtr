@@ -41,7 +41,7 @@ type StatsRange struct {
 type Affix struct {
 	ModelBase
 	Name   string        `json:"name"`
-	Ranges []*StatsRange `json:"ranges" gorm:"polymorphic:Owner;"`
+	Ranges []*StatsRange `json:"ranges" gorm:"polymorphic:Owner;polymorphicId:OwnerID"`
 	Type   AffixType     `json:"type"`
 
 	// polumorphism
@@ -76,27 +76,35 @@ type CurrencyOwned struct {
 type Equipable struct {
 	Storable
 	RealWeightScore float64  `json:"realWeightScore"`
-	Affixes         []*Affix `json:"affixes" gorm:"polymorphic:Owner;"`
+	Affixes         []*Affix `json:"affixes" gorm:"polymorphic:Owner;polymorphicId:OwnerID"`
 }
 
 type Weapon struct {
 	Equipable
-	BaseDamage      *Damage     `json:"baseDamage" gorm:"polymorphic:Owner;"`
-	BaseCritRate    *StatsRange `json:"baseCritRate" gorm:"polymorphic:Owner;"`
-	BaseAttackSpeed *StatsRange `json:"baseAttackSpeed" gorm:"polymorphic:Owner;"`
+	BaseDamage      *Damage     `json:"baseDamage" gorm:"polymorphic:Owner;polymorphicId:OwnerID"`
+	BaseCritRate    *StatsRange `json:"baseCritRate" gorm:"polymorphic:Owner;foreignKey:BaseCritRateID"`
+	BaseAttackSpeed *StatsRange `json:"baseAttackSpeed" gorm:"polymorphic:Owner;foreignKey:BaseAttackSpeedID"`
 
 	// Damage scaling
 	StrScaling float64 `json:"strScaling"`
 	IntScaling float64 `json:"intScaling"`
 	DexScaling float64 `json:"dexScaling"`
 	LckScaling float64 `json:"lckScaling"`
+
+	//fk
+	BaseCritRateID    uint `json:"-"`
+	BaseAttackSpeedID uint `json:"-"`
 }
 
 type Armor struct {
 	Equipable
-	BlockScore           *StatsRange `json:"blockScore" gorm:"polymorphic:Owner;"`
-	EvadeScore           *StatsRange `json:"evadeScore" gorm:"polymorphic:Owner;"`
-	BaseResistancesRange *Damage     `json:"baseResistancesRange" gorm:"polymorphic:Owner;"`
+	BlockScore           *StatsRange `json:"blockScore" gorm:"polymorphic:Owner;polymorphicId:OwnerID;foreignKey:BlockScoreID"`
+	EvadeScore           *StatsRange `json:"evadeScore" gorm:"polymorphic:Owner;polymorphicId:OwnerID;foreignKey:EvadeScoreID"`
+	BaseResistancesRange *Damage     `json:"baseResistancesRange" gorm:"polymorphic:Owner;polymorphicId:OwnerID"`
+
+	//fk
+	BlockScoreID uint `json:"-"`
+	EvadeScoreID uint `json:"-"`
 }
 
 type Omamori struct {

@@ -13,5 +13,15 @@ func GetOmamoriByID(id uint) *data.Omamori {
 }
 
 func SaveOmamori(o *data.Omamori) {
+	for _, a := range o.Affixes {
+		SaveAffixe(a)
+	}
 	db.Save(o)
+}
+
+func CreateOmamori(o *data.Omamori) {
+	for _, a := range o.Affixes {
+		CreateAffixe(a)
+	}
+	db.Create(o)
 }

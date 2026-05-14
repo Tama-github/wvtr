@@ -17,5 +17,23 @@ func GetArmorByID(id uint) *data.Armor {
 }
 
 func SaveArmor(o *data.Armor) {
+	SaveStatsRange(o.BlockScore)
+	SaveStatsRange(o.EvadeScore)
+	SaveDamage(o.BaseResistancesRange)
+	for _, a := range o.Affixes {
+		SaveAffixe(a)
+	}
+	o.BlockScoreID = o.BlockScore.ID
+	o.EvadeScoreID = o.EvadeScore.ID
 	db.Save(o)
+}
+
+func CreateArmor(o *data.Armor) {
+	CreateStatsRange(o.BlockScore)
+	CreateStatsRange(o.EvadeScore)
+	CreateDamage(o.BaseResistancesRange)
+	for _, a := range o.Affixes {
+		CreateAffixe(a)
+	}
+	db.Create(o)
 }

@@ -5,5 +5,6 @@ func (r *StatsRange) RollValue() StatsRange {
 		return StatsRange{}
 	}
 	r.Value = NaturalRoll(r.Min, r.Max)
+	r.ID = 0
 	return *r
 }

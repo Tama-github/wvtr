@@ -170,7 +170,7 @@ func handlerCreateHeroForPlayer(w http.ResponseWriter, r *http.Request) {
 
 	newH := gamedata.CreateNewHeroFromDBWaifuInfos(waifu, databasecontroller.GetHeroClasses(), databasecontroller.GetSkills())
 	newH.UserID = uint(id)
-
+	databasecontroller.CreateWeapon(newH.Equipment.Weapon)
 	errReq := databasecontroller.CreateHero(newH)
 	if errReq != nil {
 		logger.ErrLog.Println("Can't Create new hero: ", errReq)
@@ -366,6 +366,7 @@ func handlerExpeditionReport(w http.ResponseWriter, r *http.Request) {
 	user := databasecontroller.GetUserByID(uint(id))
 	exp := user.State.CurrentExpedition
 	user.GetReward(exp.ExpeditionRewards)
+	//databasecontroller.Delete(exp)
 	databasecontroller.SaveInventory(user.Inventory)
 	databasecontroller.UpdateUser(user)
 	databasecontroller.SaveTeam(user.CurrentTeam)

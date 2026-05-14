@@ -7,3 +7,11 @@ func GetDamageByID(id uint) *data.Damage {
 	db.Find(&dmg, id)
 	return dmg
 }
+
+func SaveDamage(d *data.Damage) {
+	db.Save(d)
+}
+
+func CreateDamage(d *data.Damage) {
+	db.Create(d)
+}

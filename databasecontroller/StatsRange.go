@@ -7,3 +7,11 @@ func GetStatsRangeByID(id uint) *data.StatsRange {
 	db.Find(&rng, id)
 	return rng
 }
+
+func SaveStatsRange(sr *data.StatsRange) {
+	db.Save(sr)
+}
+
+func CreateStatsRange(sr *data.StatsRange) {
+	db.Create(sr)
+}

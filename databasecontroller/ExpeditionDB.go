@@ -6,7 +6,8 @@ import (
 )
 
 func CreateExpeditionDB(edb *data.ExpeditionDB) {
-	db.Save(edb)
+	CreateInventory(edb.ExpeditionRewards.Loot)
+	db.Create(edb)
 }
 
 func GetExpeditionDBByID(id uint) *data.ExpeditionDB {
