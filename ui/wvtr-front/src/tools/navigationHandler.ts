@@ -1,5 +1,5 @@
 import { inject, ref, type Ref } from "vue"
-import { EncounterState, type CurrentStepRequestMessage, type EquipmentType, type ExpeditionDB, type ExpeditionStepResolveInfo, type ExpeditionStepTimestamp, type GameState, type Hero, type Inventory, type Team, type User, type Waifu } from "./types"
+import { EncounterState, EquipmentType, type Armor, type CurrentStepRequestMessage, type Equipable, type ExpeditionDB, type ExpeditionStepResolveInfo, type ExpeditionStepTimestamp, type GameState, type Hero, type Inventory, type Omamori, type Team, type User, type Waifu, type Weapon } from "./types"
 import type { VueCookies } from "vue-cookies";
 import { buildRequestPath, fetchData, global, postRequest, RequestType } from "./utils";
 import { buildExpeditionsCathegory, type ExpeditionCategory, type ExpToGetFromBack } from "./expeditions";
@@ -313,6 +313,60 @@ class NavigationHandler {
             }
         }
         return tl.length
+    }
+
+    async equip(e: Weapon | Armor | Omamori) {
+        switch (this.inventoryType.value) {
+            case EquipmentType.WeaponType:
+                let w = e as Weapon
+                let i1 = this.user.value!.inventory.weapons.indexOf(w);
+                if (i1 > -1) {
+                    this.user.value!.inventory.weapons.splice(i1, 1);
+                }
+                this.user.value!.inventory.weapons.push(w)
+                this.heroToEquip.value!.equipment.weapon = w
+                break;
+            case EquipmentType.ArmorType:
+                let a = e as Armor
+                let i2 = this.user.value!.inventory.armors.indexOf(a);
+                if (i2 > -1) {
+                    this.user.value!.inventory.armors.splice(i2, 1);
+                }
+                this.user.value!.inventory.armors.push(a)
+                this.heroToEquip.value!.equipment.armor = a
+                break;
+            case EquipmentType.OmamoriType:
+                let o = e as Omamori
+                let i3 = this.user.value!.inventory.omamoris.indexOf(o);
+                if (i3 > -1) {
+                    this.user.value!.inventory.omamoris.splice(i3, 1);
+                }
+                this.user.value!.inventory.omamoris.push(o)
+                this.heroToEquip.value!.equipment.omamori = o
+                break;
+        }
+        let params = [
+            {
+                id: "uid",
+                value: `${this.user.value!.id}`,
+            },
+            {
+                id: "hid",
+                value: `${this.heroToEquip.value!.id}`,
+            },
+            {
+                id: "etype",
+                value: `${this.inventoryType.value}`,
+            },
+            {
+                id: "eid",
+                value: `${e.id}`,
+            },
+        ]
+        this.heroToInspect.value = this.heroToEquip.value
+        this.setHomeStatus(NavigationStatus.InspectHero)
+        await fetchData<undefined>(ref(undefined), RequestType.Equip, params)
+        await this.fetchTeam()
     }
 }
 

@@ -24,3 +24,10 @@ func GetHeroEquipmentByID(id uint) *data.HeroEquipment {
 
 	return equi
 }
+
+func SaveHeroEquipment(he *data.HeroEquipment) {
+	SaveWeapon(he.Weapon)
+	SaveArmor(he.Armor)
+	SaveOmamori(he.Omamori)
+	db.Save(he)
+}

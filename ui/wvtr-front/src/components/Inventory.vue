@@ -1,13 +1,12 @@
 <script setup lang="ts">
     import { inject, ref } from "vue";
 import { EquipmentType, type Armor, type Equipable, type Hero, type Omamori, type Weapon } from "../tools/types.ts"
-    import { global } from "../tools/utils.ts"
+    import { fetchData, global, RequestType } from "../tools/utils.ts"
 import type { NavigationHandler } from "@/tools/navigationHandler.ts";
 import InspectEquipment from "./InspectEquipment.vue";
 
     const navigationHandler = inject<NavigationHandler>('navigationHandler')!
     const user = navigationHandler.getUser()
-    const heroToEquip = navigationHandler.getHeroToEquip()
     const inventoryType = navigationHandler.getInventoryType()
     const equipmentToInspect = ref<Weapon | Armor | Omamori | undefined>(undefined)
     const errorMsg = ref("")
@@ -25,7 +24,7 @@ import InspectEquipment from "./InspectEquipment.vue";
     }
 
     function onclick() {
-        console.log("clicked")
+        navigationHandler.equip(equipmentToInspect.value!)
     }
     
 </script>

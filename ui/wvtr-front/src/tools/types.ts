@@ -99,19 +99,21 @@ type Equipable = Storable & {
 }
 
 type Weapon = Equipable & {
+    id: number,
     baseDamage: Damage,
     baseCritRate: StatsRange,
     baseAttackSpeed: StatsRange,
 }
 
 type Armor = Equipable & {
+    id: number,
     blockScore: StatsRange,
     evadeScore: StatsRange,
     baseResistancesRange: Damage,
 }
 
 type Omamori = Equipable & {
-
+    id: number,
 }
 
 type HeroEquipment = {

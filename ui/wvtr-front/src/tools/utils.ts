@@ -21,6 +21,7 @@ class global {
     public static readonly REQ_UPDATETEAM = "/api/updateTeam/";
     public static readonly REQ_SAVEUSER = "/api/saveUser/";
     public static readonly REQ_SAVEGAMESTATE = "/api/saveGameState/";
+    public static readonly REQ_EQUIP = "/api/equip/{uid}/{hid}/{etype}/{eid}";
 
     //Create objects
     public static readonly REQ_CREATEHEROFROMWAIFU = "/api/createherofromwaifu/{id}"
@@ -46,6 +47,7 @@ enum RequestType {
     CreateHeroFromWaifu,
     SaveUser,
     SaveGameState,
+    Equip,
 
     LaunchExpedition,
     UpdateTeam,
@@ -94,6 +96,9 @@ function buildRequestPath(reqType: RequestType, pathParams: { id: string; value:
         case RequestType.SaveGameState:
             request += global.REQ_SAVEGAMESTATE
             break
+        case RequestType.Equip:
+            request += global.REQ_EQUIP
+            break
         default:
             request = ""
             break
@@ -108,7 +113,7 @@ function buildRequestPath(reqType: RequestType, pathParams: { id: string; value:
     return request
 }
 
-async function fetchData<T>(target: Ref<T | undefined>, reqType: RequestType, pathParams: [{ id: string; value: string }] | undefined = undefined) {
+async function fetchData<T>(target: Ref<T | undefined>, reqType: RequestType, pathParams: { id: string; value: string; }[] | undefined = undefined) {
     target.value = undefined;
 
     let request: string = buildRequestPath(reqType, pathParams)

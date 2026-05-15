@@ -13,6 +13,9 @@ func GetOmamoriByID(id uint) *data.Omamori {
 }
 
 func SaveOmamori(o *data.Omamori) {
+	if o == nil {
+		return
+	}
 	for _, a := range o.Affixes {
 		SaveAffixe(a)
 	}

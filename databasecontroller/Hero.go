@@ -13,6 +13,7 @@ func CreateHero(hero *data.Hero) error {
 
 func SaveHero(hero *data.Hero) {
 	SaveHeroAttributes(hero.Attributes)
+	SaveHeroEquipment(hero.Equipment)
 	db.Save(hero)
 }
 

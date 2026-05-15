@@ -21,6 +21,9 @@ func GetArmorByID(id uint) *data.Armor {
 }
 
 func SaveArmor(o *data.Armor) {
+	if o == nil {
+		return
+	}
 	SaveStatsRange(o.BlockScore)
 	SaveStatsRange(o.EvadeScore)
 	SaveDamage(o.BaseResistancesRange)

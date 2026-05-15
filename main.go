@@ -155,6 +155,45 @@ func handleGetPlayerWaicolleAscendedWaifus(w http.ResponseWriter, r *http.Reques
 	utils.Give(waifus, w, false)
 }
 
+type EquipmentType int
+
+const (
+	WeaponType EquipmentType = iota
+	ArmorType
+	OmamoriType
+)
+
+func handleEquip(w http.ResponseWriter, r *http.Request) {
+	functionS := "[handleEquip]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
+	uid := utils.GetParamInt("uid", r)
+	hid := utils.GetParamInt("hid", r)
+	var etype EquipmentType = EquipmentType(utils.GetParamInt("etype", r))
+	eid := utils.GetParamInt("eid", r)
+
+	user := databasecontroller.GetUserByID(uint(uid))
+	hero := databasecontroller.GetHeroByID(uint(hid))
+
+	switch etype {
+	case WeaponType:
+		wtoe := databasecontroller.GetWeaponByID(uint(eid))
+		user.Inventory.Store(hero.Equip(wtoe).(*data.Weapon), 1)
+	case ArmorType:
+		atoe := databasecontroller.GetArmorByID(uint(eid))
+		user.Inventory.Store(hero.Equip(atoe).(*data.Armor), 1)
+	case OmamoriType:
+		otoe := databasecontroller.GetOmamoriByID(uint(eid))
+		user.Inventory.Store(hero.Equip(otoe).(*data.Omamori), 1)
+	}
+
+	databasecontroller.SaveInventory(user.Inventory)
+	databasecontroller.SaveHero(hero)
+
+	toSend := "{}"
+
+	utils.Give(toSend, w, false)
+}
+
 func handlerCreateHeroForPlayer(w http.ResponseWriter, r *http.Request) {
 	functionS := "[handleGetPlayerWaicolleAscendedWaifus]"
 	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
@@ -395,6 +434,7 @@ func main() {
 	http.HandleFunc("/api/user/{id}", handlerUser)
 	http.HandleFunc("/api/availableexpeditions/{id}", handlerAvailableExpeditions)
 	http.HandleFunc("/api/userwaifus/{id}", handleGetPlayerWaicolleAscendedWaifus)
+	http.HandleFunc("/api/equip/{uid}/{hid}/{etype}/{eid}", handleEquip)
 
 	//post
 	http.HandleFunc("/api/currentexpeditionstep/", handlerCurrentExpeditionStep)

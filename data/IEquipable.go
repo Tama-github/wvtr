@@ -25,6 +25,8 @@ func (e *Weapon) Equip(h *Hero) IEquipable {
 	var res IEquipable
 	res = h.Equipment.Weapon
 	h.Equipment.Weapon = e
+	h.Equipment.WeaponID = e.ID
+	e.InventoryID = 0
 	return res
 }
 
@@ -32,6 +34,8 @@ func (e *Armor) Equip(h *Hero) IEquipable {
 	var res IEquipable
 	res = h.Equipment.Armor
 	h.Equipment.Armor = e
+	h.Equipment.ArmorID = e.ID
+	e.InventoryID = 0
 	return res
 }
 
@@ -39,6 +43,8 @@ func (e *Omamori) Equip(h *Hero) IEquipable {
 	var res IEquipable
 	res = h.Equipment.Omamori
 	h.Equipment.Omamori = e
+	h.Equipment.OmamoriID = e.ID
+	e.InventoryID = 0
 	return res
 }
 

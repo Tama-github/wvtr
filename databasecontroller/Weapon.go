@@ -20,6 +20,9 @@ func GetWeaponByID(id uint) *data.Weapon {
 }
 
 func SaveWeapon(o *data.Weapon) {
+	if o == nil {
+		return
+	}
 	SaveDamage(o.BaseDamage)
 	SaveStatsRange(o.BaseAttackSpeed)
 	SaveStatsRange(o.BaseCritRate)

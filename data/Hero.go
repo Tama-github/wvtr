@@ -91,6 +91,10 @@ func (h *Hero) IncreaseAttributeWithRate() {
 	h.Attributes.SetAttributesWithArray(attrs)
 }
 
+func (h *Hero) Equip(e IEquipable) IEquipable {
+	return e.Equip(h)
+}
+
 func (h *Hero) LevelUp() {
 	h.Attributes.Level += 1
 	h.Attributes.CurrentXP = 0
