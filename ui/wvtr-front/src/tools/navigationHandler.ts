@@ -366,6 +366,7 @@ class NavigationHandler {
         this.heroToInspect.value = this.heroToEquip.value
         this.setHomeStatus(NavigationStatus.InspectHero)
         await fetchData<undefined>(ref(undefined), RequestType.Equip, params)
+        await this.fetchInventory()
         await this.fetchTeam()
     }
 }
