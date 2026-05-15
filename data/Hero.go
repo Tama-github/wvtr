@@ -28,7 +28,9 @@ func (h *Hero) ClearAllStatusAndSetToFullLife() {
 }
 
 func (h *Hero) SetUSkillUsed(used bool) {
-	h.UniqueSkill.HaveBeenUsed = used
+	if h.UniqueSkill != nil {
+		h.UniqueSkill.HaveBeenUsed = used
+	}
 }
 
 func (h Hero) IsDefeated() bool {
@@ -36,7 +38,7 @@ func (h Hero) IsDefeated() bool {
 }
 
 func (h Hero) HasUniqueSkill(skillId SkillID) bool {
-	return h.UniqueSkill.Identifier == skillId
+	return h.UniqueSkill != nil && h.UniqueSkill.Identifier == skillId
 }
 
 func (h *Hero) GoToLevel(level int) {
@@ -51,7 +53,7 @@ func (h *Hero) GoToLevel(level int) {
 
 func (h *Hero) GainXP(amount float64) {
 	if h.HasUniqueSkill(FastLearner) && h.UniqueSkill.Use(h) {
-		amount = amount * (20.0 / 100.0)
+		amount += amount * (20.0 / 100.0)
 	}
 
 	for amount > 0 {
@@ -81,7 +83,7 @@ func (h *Hero) IncreaseAttributeWithRate() {
 
 		toadd := float64(int(gr))
 		proba := gr - toadd
-		if RollCheck(NaturalRoll(0, 1), 1-proba) {
+		if RollCheck(NaturalRoll(0, 1), proba) {
 			toadd++
 		}
 		attrs[i] += toadd
@@ -93,7 +95,9 @@ func (h *Hero) LevelUp() {
 	h.Attributes.Level += 1
 	h.Attributes.CurrentXP = 0
 	h.Attributes.XPToLvlUp = h.Attributes.LevelThreshold()
+	h.Attributes.MaxHP += 5
 	h.IncreaseAttributeWithRate()
+	h.Attributes.CurrentHP = h.Attributes.MaxHP
 }
 
 func GenerateGrowthRateFromRank(rank string) []float64 {
@@ -138,6 +142,9 @@ func (h *Hero) RollNumber(min float64, max float64) float64 {
 	return resRoll
 }
 
+/*
+ * @param target :
+ */
 func (h *Hero) RollCheck(proba float64) bool {
 	return RollCheck(h.RollNumber(0, 1), proba)
 }
@@ -197,22 +204,20 @@ func (h *Hero) takeFlatDamage(dmg float64) {
 }
 
 func (h *Hero) Dodge(from *Hero) bool {
-	// TODO
-	return false
+	return h.RollCheck(h.GetTotalDodgeProba())
 }
 
 func (h *Hero) Block(from *Hero) bool {
-	// TODO
-	return false
+	return h.RollCheck(h.GetTotalBlockProba())
 }
 
 func (h *Hero) IsCrit() bool {
-	return h.RollCheck(h.Equipment.Weapon.BaseCritRate.Value)
+	return h.RollCheck(h.GetTotalCritProba())
 }
 
 func (h *Hero) Rest(heal float64) float64 {
 	actualHeal := heal
-	if h.HasUniqueSkill(GoodRest) {
+	if h.HasUniqueSkill(GoodRest) && h.UniqueSkill.Use(h) {
 		actualHeal = heal * 1.33
 	}
 	if h.Attributes.CurrentHP+actualHeal >= h.Attributes.MaxHP {
@@ -267,7 +272,7 @@ func (h *Hero) TakeDamage(dmg *Damage, takeFrom *Hero, fad *FieldActionDesc) *Fi
 	return fad
 }
 
-// return reation time at the bagining of the combat
+// return reaction time at the begining of the combat
 func (h *Hero) InitiativeRoll() time.Duration {
 	dex := h.Attributes.Dexterity
 
@@ -376,15 +381,35 @@ func (h *Hero) GetTotalRes() *Damage {
 	// Affixes modifier
 	physRes := h.Equipment.GetTotalValueOfAffixInEquipment(PhysRes).Ranges[0].Value
 
-	res.SlashDmg = h.Equipment.GetTotalValueOfAffixInEquipment(SlashRes).Ranges[0].Value + res.SlashDmg + physRes
-	res.BluntDmg = h.Equipment.GetTotalValueOfAffixInEquipment(BluntRes).Ranges[0].Value + res.BluntDmg + physRes
-	res.PierceDmg = h.Equipment.GetTotalValueOfAffixInEquipment(PierceRes).Ranges[0].Value + res.PierceDmg + physRes
+	res.SlashDmg = math.Min(h.Equipment.GetTotalValueOfAffixInEquipment(SlashRes).Ranges[0].Value+res.SlashDmg+physRes, 65)
+	res.BluntDmg = math.Min(h.Equipment.GetTotalValueOfAffixInEquipment(BluntRes).Ranges[0].Value+res.BluntDmg+physRes, 65)
+	res.PierceDmg = math.Min(h.Equipment.GetTotalValueOfAffixInEquipment(PierceRes).Ranges[0].Value+res.PierceDmg+physRes, 65)
 
 	elemRes := h.Equipment.GetTotalValueOfAffixInEquipment(ElemRes).Ranges[0].Value
 
-	res.FireDmg = h.Equipment.GetTotalValueOfAffixInEquipment(FireRes).Ranges[0].Value + res.FireDmg + elemRes
-	res.FrostDmg = h.Equipment.GetTotalValueOfAffixInEquipment(FrostRes).Ranges[0].Value + res.FrostDmg + elemRes
-	res.LightningDmg = h.Equipment.GetTotalValueOfAffixInEquipment(LightningRes).Ranges[0].Value + res.LightningDmg + elemRes
+	res.FireDmg = math.Min(h.Equipment.GetTotalValueOfAffixInEquipment(FireRes).Ranges[0].Value+res.FireDmg+elemRes, 65)
+	res.FrostDmg = math.Min(h.Equipment.GetTotalValueOfAffixInEquipment(FrostRes).Ranges[0].Value+res.FrostDmg+elemRes, 65)
+	res.LightningDmg = math.Min(h.Equipment.GetTotalValueOfAffixInEquipment(LightningRes).Ranges[0].Value+res.LightningDmg+elemRes, 65)
 
 	return res
+}
+
+func (h *Hero) GetTotalBlockProba() float64 {
+	// TODO: add affixes modifier
+	res := h.Equipment.GetEquipmentTotalBlockChance()
+
+	return res / 100
+}
+
+func (h *Hero) GetTotalDodgeProba() float64 {
+	// TODO: add affixes modifier
+	res := h.Equipment.GetEquipmentTotalDodgeChance()
+
+	return res / 100
+}
+
+func (h *Hero) GetTotalCritProba() float64 {
+	res := h.Equipment.GetEquipmenetTotalCritChance()
+
+	return res / 100
 }

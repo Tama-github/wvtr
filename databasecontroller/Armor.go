@@ -13,6 +13,10 @@ func GetArmorByID(id uint) *data.Armor {
 	for i := range armor.Affixes {
 		armor.Affixes[i] = GetAffixByID(armor.Affixes[i].ID)
 	}
+
+	armor.BlockScore = GetStatsRangeByID(armor.BlockScoreID)
+	armor.EvadeScore = GetStatsRangeByID(armor.EvadeScoreID)
+
 	return armor
 }
 

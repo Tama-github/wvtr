@@ -15,8 +15,8 @@ func MakeUniformArrayRates[T any](arr []T) []float64 {
 	return res
 }
 
-func RollCheck(rollScore float64, target float64) bool {
-	return rollScore >= target
+func RollCheck(rollScore float64, proba float64) bool {
+	return rollScore <= proba
 }
 
 func NaturalRoll(min float64, max float64) float64 {

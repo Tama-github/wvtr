@@ -21,3 +21,36 @@ func (he *HeroEquipment) GetTotalValueOfAffixInEquipment(af AffixType) *Affix {
 
 	return res
 }
+
+func (he *HeroEquipment) GetEquipmentTotalDodgeChance() float64 {
+	res := 0.0
+
+	// TODO: Add affix
+	if he.Armor != nil {
+		res += he.Armor.EvadeScore.Value
+	}
+
+	return res
+}
+
+func (he *HeroEquipment) GetEquipmentTotalBlockChance() float64 {
+	res := 0.0
+
+	// TODO: Add affix
+	if he.Armor != nil {
+		res += he.Armor.BlockScore.Value
+	}
+
+	return res
+}
+
+func (he *HeroEquipment) GetEquipmenetTotalCritChance() float64 {
+	res := 0.0
+
+	// TODO: Add affix
+	if he.Weapon != nil && he.Weapon.BaseCritRate != nil {
+		res += he.Weapon.BaseCritRate.Value
+	}
+
+	return res
+}

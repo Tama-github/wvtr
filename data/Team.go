@@ -84,8 +84,10 @@ func (team *Team) Fight(oponent *Team, fightReport *ExpeditionStepResolveInfo) {
 			return
 		}
 
-		// Check who are friends who are enemies
 		a := turnOrder.getNextAction(time)
+		logger.DumpLog.Printf("%s to play", a.Who.Name)
+
+		// Check who are friends who are enemies
 		ft := oponent
 		et := team
 		if slices.Contains(team.Heroes, a.Who) {
@@ -93,6 +95,7 @@ func (team *Team) Fight(oponent *Team, fightReport *ExpeditionStepResolveInfo) {
 			et = oponent
 		}
 
+		logger.DumpLog.Printf("%s to play", a.Who.Name)
 		recupTime := a.Who.Play(a.When, ft, et, fightReport)
 		newAction := &Action{
 			When: a.When.Add(recupTime),

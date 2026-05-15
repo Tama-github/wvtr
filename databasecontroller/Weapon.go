@@ -12,6 +12,10 @@ func GetWeaponByID(id uint) *data.Weapon {
 	for i := range weap.Affixes {
 		weap.Affixes[i] = GetAffixByID(weap.Affixes[i].ID)
 	}
+
+	weap.BaseCritRate = GetStatsRangeByID(weap.BaseCritRateID)
+	weap.BaseAttackSpeed = GetStatsRangeByID(weap.BaseAttackSpeedID)
+
 	return weap
 }
 

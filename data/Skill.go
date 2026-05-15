@@ -44,8 +44,8 @@ const (
 
 func IsLuckyActivate(x float64) bool {
 	roll := NaturalRoll(0, 1)
-	target := 1 - ((x * x) / (200 * x))
-	return RollCheck(roll, target)
+	proba := ((x * x) / (200 * x))
+	return RollCheck(roll, proba)
 }
 
 func (s *Skill) UseLucky(from *Hero) bool {
@@ -74,8 +74,8 @@ func (s *Skill) UseTrickster(from *Hero) bool {
 	dex := float64(from.Attributes.GetDexterity())
 	x := (dex + lck) / 2
 	roll := NaturalRoll(0, 1)
-	target := 1 - ((x * x) / (200 * x))
-	return RollCheck(roll, target)
+	proba := ((x * x) / (200 * x))
+	return RollCheck(roll, proba)
 }
 
 func (s *Skill) Use(from *Hero) bool {
@@ -94,10 +94,6 @@ func (s *Skill) Use(from *Hero) bool {
 		return s.UseTrickster(from)
 	case FastLearner:
 		return true
-		// case ElementalCursed:
-		// 	return true
-		// case PhysicalCursed:
-		// 	return true
 	}
 	return false
 }
