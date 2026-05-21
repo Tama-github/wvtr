@@ -29,12 +29,32 @@ var plainsRewardPool *expedition.RewardPool = &expedition.RewardPool{
 	},
 }
 
-var craftRewardPool *expedition.RewardPool = &expedition.RewardPool{
+var craftWeaponsRewardPool *expedition.RewardPool = &expedition.RewardPool{
 	ItemBasePool: []data.IEquipableBase{
 		SwordBase,
 		DaggerBase,
 		HammerBase,
 	},
+	CurrencyPool: map[data.CurrencyType]data.StatsRange{
+		data.Gold:   {Min: 0, Max: 0},
+		data.CScrap: {Min: 0, Max: 0},
+		data.LSCrap: {Min: 0, Max: 0},
+		data.MScrap: {Min: 0, Max: 0},
+	},
+}
+
+var craftArmorsRewardPool *expedition.RewardPool = &expedition.RewardPool{
+	ItemBasePool: []data.IEquipableBase{},
+	CurrencyPool: map[data.CurrencyType]data.StatsRange{
+		data.Gold:   {Min: 0, Max: 0},
+		data.CScrap: {Min: 0, Max: 0},
+		data.LSCrap: {Min: 0, Max: 0},
+		data.MScrap: {Min: 0, Max: 0},
+	},
+}
+
+var craftOmamorisRewardPool *expedition.RewardPool = &expedition.RewardPool{
+	ItemBasePool: []data.IEquipableBase{},
 	CurrencyPool: map[data.CurrencyType]data.StatsRange{
 		data.Gold:   {Min: 0, Max: 0},
 		data.CScrap: {Min: 0, Max: 0},

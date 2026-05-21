@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { inject, onMounted, ref, watch } from "vue"
-    import type { ExpeditionStepResolveInfo } from "../tools/types.ts"
-    import { global, formatTextTimeFromTimeMS } from "../tools/utils.ts"
+    import { type ExpeditionStepResolveInfo, type ExpToLaunch } from "../tools/types.ts"
+    import { global, formatTextTimeFromTimeMS, getTypeFromName } from "../tools/utils.ts"
 import type { NavigationHandler } from "@/tools/navigationHandler.ts"
 import type { ExpeditionCategory } from "@/tools/expeditions.ts"
 
@@ -10,8 +10,8 @@ import type { ExpeditionCategory } from "@/tools/expeditions.ts"
     const expeditionsCats = navigationHandler.getAvailableExpedition()
     const user = navigationHandler.getUser()
 
-    let selectedExp = ref("")
-    let selectedCat = ref("")
+    let selectedExp = ref<ExpToLaunch|undefined>(undefined)
+    //let selectedCat = ref("")
     const errorMsg = ref("") 
     let selectionB = ref<Record<string,string>>({})
     onMounted(()=>{
@@ -21,7 +21,7 @@ import type { ExpeditionCategory } from "@/tools/expeditions.ts"
     function fillSelectionB(e: ExpeditionCategory[]) {
         for (let i = 0; i < e.length; i++) {
             for(let j = 0; j< e[i]!.expeditions.length; j++) {
-                if (e[i]!.expeditions[j]!.key === selectedExp.value) {
+                if (e[i]!.expeditions[j]!.key === selectedExp.value?.key) {
                     selectionB.value[e[i]!.expeditions[j]!.key] = "eselected"
                 } else if (!e[i]!.expeditions[j]!.canBeLaunched) {
                     selectionB.value[e[i]!.expeditions[j]!.key] = "cantbeselected"
@@ -32,15 +32,23 @@ import type { ExpeditionCategory } from "@/tools/expeditions.ts"
         }
     }
 
-    function clickOnExpedition(e: string, cat: string) {
+    function clickOnExpedition(e: string, cat: string, cost: string, costNumber: number) {
         if (expeditionsCats.value) {
-            if (selectedExp.value !== e) {
-                selectedExp.value = e
-                selectedCat.value = cat
+            if (!selectedExp.value || selectedExp.value!.key !== e) {
+                selectedExp.value = {
+                    cat: cat,
+                    key: e,
+                    cost: cost,
+                    costNumber: costNumber,
+                }
                 fillSelectionB(expeditionsCats.value)
             } else {
-                selectedExp.value = ""
-                selectedCat.value = ""
+                selectedExp.value = {
+                    cat: "",
+                    key: "",
+                    cost: "",
+                    costNumber: 0,
+                }
                 fillSelectionB(expeditionsCats.value)
             }
         }
@@ -48,17 +56,22 @@ import type { ExpeditionCategory } from "@/tools/expeditions.ts"
 
     let expStepInfo = ref<ExpeditionStepResolveInfo|undefined>(undefined)
     async function onclick() {
-        if (user.value!.currentTeam.heroes.length > 0) {
-            console.log("cat : "+ selectedCat.value)
-            console.log("id : "+ selectedExp.value)
-            await navigationHandler.launchExpedition(expStepInfo, selectedCat.value, selectedExp.value)
+        if (user.value!.currentTeam!.heroes.length > 0) {
+            console.log("cat : "+ selectedExp.value?.cat)
+            console.log("id : "+ selectedExp.value?.key)
+            let eType = getTypeFromName(selectedExp.value?.cost!) 
+            if (eType != undefined) { // if the cost is an equipment we need the user to select wich one to spend.
+                navigationHandler.setInventoryForExpeditionLaunch(eType, selectedExp.value!)
+            } else {
+                await navigationHandler.launchExpedition(expStepInfo, selectedExp.value?.cat!, selectedExp.value?.key!, undefined)
+            }
         } else {
             errorMsg.value = "You should have at least one hero in your team before starting an expedition."
         }
     }
     watch(expStepInfo, (newExpInfo) => {
         if (newExpInfo) {
-            user.value!.state.state = newExpInfo.stepState
+            user.value!.state!.state = newExpInfo.stepState
         }
     })
 
@@ -80,7 +93,7 @@ import type { ExpeditionCategory } from "@/tools/expeditions.ts"
                 </div>
                 <div class="row"> 
                     <div v-for="e in cat.expeditions" :class="selectionB[e.key]">
-                        <div v-if="e.canBeLaunched" v-on:click="clickOnExpedition(e.key, cat.name)">
+                        <div v-if="e.canBeLaunched" v-on:click="clickOnExpedition(e.key, cat.name, e.costName, e.costNumber)">
                             <p style="text-align: center;">{{ e.key }}</p>
                             <p style="text-align: center;">time : {{ formatTextTimeFromTimeMS(e.duration/1000000) }}</p>
                             <p v-if="e.costName != ''" style="text-align: center;">Cost : {{ e.costName }} / {{ e.costNumber}} </p>

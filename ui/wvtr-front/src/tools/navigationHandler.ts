@@ -1,5 +1,5 @@
 import { inject, ref, type Ref } from "vue"
-import { EncounterState, EquipmentType, type Armor, type CurrentStepRequestMessage, type Equipable, type ExpeditionDB, type ExpeditionStepResolveInfo, type ExpeditionStepTimestamp, type GameState, type Hero, type Inventory, type Omamori, type Team, type User, type Waifu, type Weapon } from "./types"
+import { EncounterState, EquipmentType, InventoryToDo, type Armor, type CurrentStepRequestMessage, type Equipable, type EquipmentToSpend, type ExpeditionDB, type ExpeditionStepResolveInfo, type ExpeditionStepTimestamp, type ExpToLaunch, type GameState, type Hero, type Inventory, type Omamori, type Storable, type Team, type User, type Waifu, type Weapon } from "./types"
 import type { VueCookies } from "vue-cookies";
 import { buildRequestPath, fetchData, global, postRequest, RequestType } from "./utils";
 import { buildExpeditionsCathegory, type ExpeditionCategory, type ExpToGetFromBack } from "./expeditions";
@@ -80,7 +80,9 @@ class NavigationHandler {
 
     // Equip hero
     heroToEquip = ref<Hero | undefined>(undefined)
+    expToLaunch = ref<ExpToLaunch | undefined>(undefined)
     inventoryType = ref<EquipmentType | undefined>(undefined)
+    whatInventoryDo = ref<InventoryToDo | undefined>(undefined)
 
     constructor() {
         this.navigationStatus.value = NavigationStatus.Connexion
@@ -107,14 +109,14 @@ class NavigationHandler {
 
     async fetchTeam() {
         let response = ref<Team | undefined>(undefined)
-        await fetchData<Team>(response, RequestType.Team, [{ id: "id", value: `${this.user.value!.currentTeam.id}` }])
+        await fetchData<Team>(response, RequestType.Team, [{ id: "id", value: `${this.user.value!.currentTeam!.id}` }])
 
         this.user.value!.currentTeam! = response.value!
     }
 
     async fetchInventory() {
         let response = ref<Inventory | undefined>(undefined)
-        await fetchData<Inventory>(response, RequestType.Inventory, [{ id: "id", value: `${this.user.value!.currentTeam.id}` }])
+        await fetchData<Inventory>(response, RequestType.Inventory, [{ id: "id", value: `${this.user.value!.currentTeam!.id}` }])
 
         this.user.value!.inventory = response.value!
         await this.fetchAvailableExpedition()
@@ -123,7 +125,7 @@ class NavigationHandler {
     async fetchExpeditionReport() {
         const report = ref<ExpeditionDB | undefined>(undefined)
         await fetchData<ExpeditionDB>(report, RequestType.ExpeditionReport, [{ id: "uid", value: `${this.user.value!.id}` }])
-        this.user.value!.state.currentExpedition = report.value!
+        this.user.value!.state!.currentExpedition = report.value!
     }
 
     getHeroToEquip() {
@@ -132,6 +134,10 @@ class NavigationHandler {
 
     getInventoryType() {
         return this.inventoryType
+    }
+
+    getInventoryDo() {
+        return this.whatInventoryDo
     }
 
     getAvailableExpedition() {
@@ -143,24 +149,28 @@ class NavigationHandler {
     }
 
     getReport() {
-        return this.user.value?.state.currentExpedition!
+        return this.user.value?.state!.currentExpedition!
     }
 
     getCurrentExpeditionStepResolveInfo() {
         return this.currentExpeditionStepResolveInfo
     }
 
-    async launchExpedition(target: Ref<ExpeditionStepResolveInfo | undefined>, expCategory: string, expIdentifier: string) {
+    async launchExpedition(target: Ref<ExpeditionStepResolveInfo | undefined>, expCategory: string, expIdentifier: string, giveToExpedition: EquipmentToSpend[] | undefined) {
         target.value = undefined
         let request: string = buildRequestPath(RequestType.LaunchExpedition)
         request = request.replace(`{usr}`, String(this.user.value!.id))
         request = request.replace(`{expCat}`, expCategory)
         request = request.replace(`{expId}`, expIdentifier)
-        const response = await fetch(request);
+
+        const response = await fetch(request, {
+            method: "POST",
+            body: JSON.stringify(giveToExpedition)
+        });
         await this.fetchInventory()
         target.value = await response.json() as ExpeditionStepResolveInfo
         if (target.value) {
-            this.user.value!.state.state = target.value.stepState
+            this.user.value!.state!.state = target.value.stepState
         }
     }
 
@@ -184,6 +194,10 @@ class NavigationHandler {
         this.heroToInspect.value = h
     }
 
+    getExpToLaunch() {
+        return this.expToLaunch
+    }
+
     getHeroToInspect() {
         return this.heroToInspect
     }
@@ -196,14 +210,14 @@ class NavigationHandler {
         if (this.user.value == undefined) {
             return EncounterState.Error
         }
-        return this.user.value.state.state
+        return this.user.value.state!.state
     }
 
     async setGameState(state: EncounterState) {
-        this.user.value!.state.state = state
+        this.user.value!.state!.state = state
         this.setHomeStatus(NavigationStatus.Home)
         const answer = ref<GameState | undefined>(undefined)
-        await postRequest<GameState, GameState>(answer, this.user.value!.state, RequestType.SaveGameState)
+        await postRequest<GameState, GameState>(answer, this.user.value!.state!, RequestType.SaveGameState)
     }
 
     getUserCurrentTeam() {
@@ -213,11 +227,21 @@ class NavigationHandler {
     setInventoryVue(type: EquipmentType, heroToEquip: Hero) {
         this.inventoryType.value = type
         this.heroToEquip.value = heroToEquip
+        this.expToLaunch.value = undefined
+        this.whatInventoryDo.value = InventoryToDo.Equip
+        this.navigationStatus.value = NavigationStatus.Inventory
+    }
+
+    setInventoryForExpeditionLaunch(type: EquipmentType, exp: ExpToLaunch) {
+        this.inventoryType.value = type
+        this.heroToEquip.value = undefined
+        this.expToLaunch.value = exp
+        this.whatInventoryDo.value = InventoryToDo.Spend
         this.navigationStatus.value = NavigationStatus.Inventory
     }
 
     async setUserCurrentTeam(heroes: Hero[]) {
-        this.user.value!.currentTeam.heroes = heroes
+        this.user.value!.currentTeam!.heroes = heroes
         let tmpTeam = ref<Team | undefined>(undefined)
         await postRequest<Team, User>(tmpTeam, this.user.value!, RequestType.UpdateTeam)
         if (tmpTeam.value) {
@@ -271,16 +295,16 @@ class NavigationHandler {
                 continue;
             }
 
-            let from = eri.value.timeline[i]!.whatAction.fromH
-            let fpvc = eri.value.timeline[i]!.whatAction.fromPVChange
+            let from = eri.value.timeline[i]!.whatAction!.fromH!
+            let fpvc = eri.value.timeline[i]!.whatAction!.fromPVChange!
             if (fpvc != 0) {
                 let i1 = this.findHeroIdx(user.value.currentTeam, from)
                 let i2 = this.findHeroIdx(eri.value.eTeam!, from)
                 i1 >= 0 ? pvAccumulatorTeam[i1]! -= fpvc : (i2 >= 0 ? pvAccumulatorEn[i2]! -= fpvc : 0)
             }
 
-            let target = eri.value.timeline[i]!.whatAction.targetH
-            let tpvc = eri.value.timeline[i]!.whatAction.targetPVChange
+            let target = eri.value.timeline[i]!.whatAction!.targetH!
+            let tpvc = eri.value.timeline[i]!.whatAction!.targetPVChange!
             if (tpvc != 0) {
                 let j1 = this.findHeroIdx(user.value.currentTeam, target)
                 let j2 = this.findHeroIdx(eri.value.eTeam!, target)
@@ -289,11 +313,11 @@ class NavigationHandler {
         }
 
         for (let i = 0; i < user.value.currentTeam.heroes.length; i++) {
-            user.value.currentTeam.heroes[i]!.attributes.currentHP! = user.value.currentTeam.heroes[i]?.attributes.maxHP! + pvAccumulatorTeam[i]!
+            user.value.currentTeam.heroes[i]!.attributes!.currentHP! = user.value.currentTeam.heroes[i]?.attributes!.maxHP! + pvAccumulatorTeam[i]!
         }
 
         for (let i = 0; i < eri.value.eTeam!.heroes.length; i++) {
-            eri.value.eTeam.heroes[i]!.attributes.currentHP! = eri.value.eTeam.heroes[i]?.attributes.maxHP! + pvAccumulatorEn[i]!
+            eri.value.eTeam.heroes[i]!.attributes!.currentHP! = eri.value.eTeam.heroes[i]?.attributes!.maxHP! + pvAccumulatorEn[i]!
         }
     }
 
@@ -319,30 +343,30 @@ class NavigationHandler {
         switch (this.inventoryType.value) {
             case EquipmentType.WeaponType:
                 let w = e as Weapon
-                let i1 = this.user.value!.inventory.weapons.indexOf(w);
+                let i1 = this.user.value!.inventory!.weapons.indexOf(w);
                 if (i1 > -1) {
-                    this.user.value!.inventory.weapons.splice(i1, 1);
+                    this.user.value!.inventory!.weapons.splice(i1, 1);
                 }
-                this.user.value!.inventory.weapons.push(w)
-                this.heroToEquip.value!.equipment.weapon = w
+                this.user.value!.inventory!.weapons.push(w)
+                this.heroToEquip.value!.equipment!.weapon = w
                 break;
             case EquipmentType.ArmorType:
                 let a = e as Armor
-                let i2 = this.user.value!.inventory.armors.indexOf(a);
+                let i2 = this.user.value!.inventory!.armors.indexOf(a);
                 if (i2 > -1) {
-                    this.user.value!.inventory.armors.splice(i2, 1);
+                    this.user.value!.inventory!.armors.splice(i2, 1);
                 }
-                this.user.value!.inventory.armors.push(a)
-                this.heroToEquip.value!.equipment.armor = a
+                this.user.value!.inventory!.armors.push(a)
+                this.heroToEquip.value!.equipment!.armor = a
                 break;
             case EquipmentType.OmamoriType:
                 let o = e as Omamori
-                let i3 = this.user.value!.inventory.omamoris.indexOf(o);
+                let i3 = this.user.value!.inventory!.omamoris.indexOf(o);
                 if (i3 > -1) {
-                    this.user.value!.inventory.omamoris.splice(i3, 1);
+                    this.user.value!.inventory!.omamoris.splice(i3, 1);
                 }
-                this.user.value!.inventory.omamoris.push(o)
-                this.heroToEquip.value!.equipment.omamori = o
+                this.user.value!.inventory!.omamoris.push(o)
+                this.heroToEquip.value!.equipment!.omamori = o
                 break;
         }
         let params = [

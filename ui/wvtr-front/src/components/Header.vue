@@ -14,7 +14,7 @@ import type { NavigationHandler } from "@/tools/navigationHandler.ts";
         </div>
         <div class="curencies" style="padding-left: 300px;">
             <div v-if="user.inventory && user.inventory.currencies" v-for="c in user.inventory.currencies" class="row" style="padding-right: 15px;">
-                <div><img :src="c.currency.iconURL" width="16"/></div>
+                <div><img :src="c.currency!.iconURL" width="16"/></div>
                 <div>{{ c.numberOwned }}</div>
             </div>
         </div>

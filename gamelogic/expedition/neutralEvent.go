@@ -5,7 +5,7 @@ import (
 	"wvtrserv/data"
 )
 
-type HappeningType func(ExpeditionEvent, *data.Team, *data.ExpeditionStepResolveInfo)
+type HappeningType func(ExpeditionEvent, *data.Team, *data.ExpeditionStepResolveInfo, []data.IStorable)
 
 /***********************/
 /***  Neutral Event  ***/
@@ -30,11 +30,11 @@ func (e NeutralEvent) GetEventType() data.EncounterState {
 	return data.Neutral
 }
 
-func (e *NeutralEvent) Solve(startAt time.Time, t *data.Team) *data.ExpeditionStepResolveInfo {
+func (e *NeutralEvent) Solve(startAt time.Time, t *data.Team, toSpend []data.IStorable) *data.ExpeditionStepResolveInfo {
 	resExp := data.NewExpeditionResolveInfo(e.GetEventType())
 
 	resExp.AddNewHappening(startAt, "Traveling Start", nil)
-	e.Happening(e, t, resExp)
+	e.Happening(e, t, resExp, toSpend)
 	resExp.AddNewHappening(startAt.Add(e.duration), "Traveling End", nil)
 	e.Reward.GenRandomReward()
 	return resExp

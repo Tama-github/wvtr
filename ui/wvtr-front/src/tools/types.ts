@@ -56,219 +56,233 @@ enum EquipmentType {
     OmamoriType,
 }
 
-type Damage = {
-    slashDmg: number,
-    bluntDmg: number,
-    pierceDmg: number,
-    fireDmg: number,
-    frostDmg: number,
-    lightningDmg: number,
+enum InventoryToDo {
+    Equip = 0,
+    Spend,
 }
 
-type StatsRange = {
-    min: number
-    max: number
-    value: number
+class Damage {
+    slashDmg: number = 0;
+    bluntDmg: number = 0;
+    pierceDmg: number = 0;
+    fireDmg: number = 0;
+    frostDmg: number = 0;
+    lightningDmg: number = 0;
 }
 
-type Affix = {
-    name: string
-    ranges: StatsRange[]
-    type: AffixType
+class StatsRange {
+    min: number = 0
+    max: number = 0
+    value: number = 0
 }
 
-type Storable = {
-    name: string,
-    iconURL: string,
+class Affix {
+    name: string = ""
+    ranges: StatsRange[] = []
+    type: AffixType = 0
 }
 
-type Currency = {
-    type: CurrencyType,
-    name: string,
-    iconURL: string,
+class Storable {
+    name: string = ""
+    iconURL: string = ""
 }
 
-type CurrencyOwned = {
-    numberOwned: number,
-    currency: Currency,
+class Currency extends Storable {
+    type: CurrencyType | undefined
+    // name: string,
+    // iconURL: string,
 }
 
-type Equipable = Storable & {
-    realWeightScore: number,
-    affixes: Affix[],
+class CurrencyOwned {
+    numberOwned: number = 0
+    currency: Currency | undefined
 }
 
-type Weapon = Equipable & {
-    id: number,
-    baseDamage: Damage,
-    baseCritRate: StatsRange,
-    baseAttackSpeed: StatsRange,
+class Equipable extends Storable {
+    realWeightScore: number = 0
+    affixes: Affix[] = []
 }
 
-type Armor = Equipable & {
-    id: number,
-    blockScore: StatsRange,
-    evadeScore: StatsRange,
-    baseResistancesRange: Damage,
+class Weapon extends Equipable {
+    id: number = 0
+    baseDamage: Damage | undefined
+    baseCritRate: StatsRange | undefined
+    baseAttackSpeed: StatsRange | undefined
 }
 
-type Omamori = Equipable & {
-    id: number,
+class Armor extends Equipable {
+    id: number = 0
+    blockScore: StatsRange | undefined
+    evadeScore: StatsRange | undefined
+    baseResistancesRange: Damage | undefined
 }
 
-type HeroEquipment = {
-    weapon: Weapon
-    armor: Armor
-    omamori: Omamori
+class Omamori extends Equipable {
+    id: number = 0
 }
 
-type Inventory = {
-    weapons: Weapon[]
-    armors: Armor[]
-    omamoris: Omamori[]
-    currencies: CurrencyOwned[]
+class HeroEquipment {
+    weapon: Weapon | undefined
+    armor: Armor | undefined
+    omamori: Omamori | undefined
 }
 
-type HeroAttributes = {
+class Inventory {
+    weapons: Weapon[] = []
+    armors: Armor[] = []
+    omamoris: Omamori[] = []
+    currencies: CurrencyOwned[] = []
+}
 
-    level: number
-    currentXP: number
-    xpBeforLvlUp: number
-    currentHP: number
+class HeroAttributes {
+    level: number = 0
+    currentXP: number = 0
+    xpBeforLvlUp: number = 0
+    currentHP: number = 0
 
     //Attributes
-    maxHP: number
-    strength: number
-    intelligence: number
-    dexterity: number
-    luck: number
+    maxHP: number = 0
+    strength: number = 0
+    intelligence: number = 0
+    dexterity: number = 0
+    luck: number = 0
 
     //Growth rate
-    hpgt: number
-    sgt: number
-    igt: number
-    dgt: number
-    lgt: number
+    hpgt: number = 0
+    sgt: number = 0
+    igt: number = 0
+    dgt: number = 0
+    lgt: number = 0
 
     //Defense
-    blockScore: number,
-    evadeScore: number,
+    blockScore: number = 0
+    evadeScore: number = 0
 
     // Resistances
-    blunt: number
-    pierce: number
-    slash: number
-    fire: number
-    frost: number
-    lighting: number
+    blunt: number = 0
+    pierce: number = 0
+    slash: number = 0
+    fire: number = 0
+    frost: number = 0
+    lighting: number = 0
 }
 
-type HeroClass = {
-    name: string
-    descritpion: string
-    class_icon_url: string
+class HeroClass {
+    name: string = ""
+    descritpion: string = ""
+    class_icon_url: string = ""
 }
 
-type Reward = {
-    xp: number,
-    loot: Inventory,
+class Reward {
+    xp: number = 0
+    loot: Inventory | undefined
 }
 
-type FieldActionDesc = {
-    fromH: Hero
-    usedSKill: Skill
-    targetH: Hero
-    targetStatus: HeroTakeDamageStatus
-    fromPVChange: number
-    targetPVChange: number
+class FieldActionDesc {
+    fromH: Hero | undefined
+    usedSKill: Skill | undefined
+    targetH: Hero | undefined
+    targetStatus: HeroTakeDamageStatus | undefined
+    fromPVChange: number = 0
+    targetPVChange: number = 0
 }
 
-type ExpeditionStepTimestamp = {
-    when: string, // time
-    what: string,
-    whatAction: FieldActionDesc,
+class ExpeditionStepTimestamp {
+    when: string = "" // time
+    what: string = ""
+    whatAction: FieldActionDesc | undefined
 }
 
-type ExpeditionStepResolveInfo = {
-    stepState: EncounterState,
-    timeline: ExpeditionStepTimestamp[],
-    eTeam: Team | null
+class ExpeditionStepResolveInfo {
+    stepState: EncounterState | undefined
+    timeline: ExpeditionStepTimestamp[] = []
+    eTeam: Team | undefined
 }
 
-type ExpeditionDB = {
-    identifier: string,
-    startedAt: string,
-    whatHappened: ExpeditionStepResolveInfo[],
-    ExpeditionRewards: Reward,
+class ExpeditionDB {
+    identifier: string = ""
+    startedAt: string = ""
+    whatHappened: ExpeditionStepResolveInfo[] = []
+    expeditionRewards: Reward | undefined
 }
 
-type GameState = {
-    id: number
-    state: EncounterState,
-    currentExpedition: ExpeditionDB,
+class GameState {
+    id: number = 0
+    state: EncounterState | undefined
+    currentExpedition: ExpeditionDB | undefined
 }
 
-type User = {
-    id: number
-    name: string
-    state: GameState
-    inventory: Inventory
-    currentTeam: Team
-    lastActionTime: string // time
-    ownedHeroes: Hero[]
-    discord_id: string
+class User {
+    id: number = 0
+    name: string = ""
+    state: GameState | undefined
+    inventory: Inventory | undefined
+    currentTeam: Team | undefined
+    lastActionTime: string = "" // time
+    ownedHeroes: Hero[] = []
+    discord_id: string = ""
 }
 
-type CurrentStepRequestMessage = {
-    id: number
-    time: number
+class CurrentStepRequestMessage {
+    id: number = 0
+    time: number = 0
 }
 
-type Skill = {
-    identifier: SkillID
-    name: string
-    skill_type: SkillType
-    target_type: TargetType
-    recuperation_duration: number
-    image_url: string
-    description: string
+class Skill {
+    identifier: SkillID | undefined
+    name: string = ""
+    skill_type: SkillType | undefined
+    target_type: TargetType | undefined
+    recuperation_duration: number = 0
+    image_url: string = ""
+    description: string = ""
 }
 
-type Hero = {
-    id: number;
-    imageUrl: string
-    name: string
-    heroClass: HeroClass
-    rank: string
-    attributes: HeroAttributes
+class Hero {
+    id: number = 0
+    imageUrl: string = ""
+    name: string = ""
+    heroClass: HeroClass | undefined
+    rank: string = ""
+    attributes: HeroAttributes | undefined
 
     // skills
-    weaponAttack: Skill
-    uniqueSkill: Skill
-    activeSkill: Skill
+    weaponAttack: Skill | undefined
+    uniqueSkill: Skill | undefined
+    activeSkill: Skill | undefined
 
     // Items
-    equipment: HeroEquipment
+    equipment: HeroEquipment | undefined
 
     // info that we save to request nanapi if we need to.
-    id_w: string
-    id_al: number
+    id_w: string = ""
+    id_al: number = 0
 };
 
-type Team = {
-    id: number;
-    heroes: Hero[];
+class Team {
+    id: number = 0
+    heroes: Hero[] = []
 };
 
-type Waifu = {
-    id: string,
-    id_al: string,
-    name_user_preferred: string,
-    image_large: string,
-    rank: string,
+class Waifu {
+    id: string = ""
+    id_al: string = ""
+    name_user_preferred: string = ""
+    image_large: string = ""
+    rank: string = ""
 }
 
+type ExpToLaunch = {
+    cat: string,
+    key: string,
+    cost: string,
+    costNumber: number,
+}
 
+type EquipmentToSpend = {
+    eq_id: number,
+    eq_type: EquipmentType,
+}
 
 export type {
     Hero,
@@ -286,11 +300,15 @@ export type {
     Weapon,
     Armor,
     Omamori,
+    Storable,
+    ExpToLaunch,
+    EquipmentToSpend,
 };
 
 export {
     EncounterState,
     HeroTakeDamageStatus,
     EquipmentType,
+    InventoryToDo,
 }
 

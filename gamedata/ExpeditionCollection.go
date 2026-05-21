@@ -7,35 +7,56 @@ import (
 )
 
 var ExpeditionsJobs = map[string]expedition.Expedition{
-	"Work 10 sec": {
+	"Work at the tavern": {
 		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
 		Events: []expedition.ExpeditionEvent{
-			workShort,
+			workGold,
 		},
 		Order: 0,
 	},
 }
 
 var ExpeditionsHeal = map[string]expedition.Expedition{
-	"Cost(10g) heal": {
+	"Heal in a hospital": {
 		ImgURL:     DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
 		Cost:       allCurrencies[data.Gold],
-		CostNumber: 10,
+		CostNumber: 500,
 		Events: []expedition.ExpeditionEvent{
-			testsmallRest1,
+			hospitalRest,
+		},
+		Order: 2,
+	},
+	"Heal at a healer's hut": {
+		ImgURL:     DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
+		Cost:       allCurrencies[data.Gold],
+		CostNumber: 100,
+		Events: []expedition.ExpeditionEvent{
+			healerRest,
 		},
 		Order: 1,
 	},
 	"Rest": {
 		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
 		Events: []expedition.ExpeditionEvent{
-			testsmallRest1,
+			rest,
 		},
 		Order: 0,
 	},
 }
 
 var ExpeditionsQuests = map[string]expedition.Expedition{
+	"Plain quest": {
+		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
+		Events: []expedition.ExpeditionEvent{
+			goingToPlains,
+			plainFight,
+			goingToPlains,
+		},
+		Order: 0,
+	},
+}
+
+var ExpeditionsCrafts = map[string]expedition.Expedition{
 	"Plain quest": {
 		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
 		Events: []expedition.ExpeditionEvent{
@@ -55,19 +76,53 @@ var ExpeditionsTest = map[string]expedition.Expedition{
 		},
 		Order: 0,
 	},
+	"Work": {
+		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
+		Events: []expedition.ExpeditionEvent{
+			workShortTest,
+		},
+		Order: 6,
+	},
 	"Training": {
 		ImgURL: DOMAIN_NAME + "/imgs/expeditions/self_training.png",
 		Events: []expedition.ExpeditionEvent{
-			selfTraining,
+			selfTrainingTest,
 		},
 		Order: 1,
 	},
 	"Craft Weapon": {
 		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
 		Events: []expedition.ExpeditionEvent{
-			craftWeapon1,
+			craftWeapon,
 		},
 		Order: 2,
+	},
+	"Scrap Weapon": {
+		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
+		Events: []expedition.ExpeditionEvent{
+			craftWeapon,
+		},
+		Cost:       &data.Weapon{Equipable: data.Equipable{Storable: data.Storable{Name: "Weapon"}}},
+		CostNumber: 1,
+		Order:      3,
+	},
+	"Scrap Armor": {
+		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
+		Events: []expedition.ExpeditionEvent{
+			craftWeapon,
+		},
+		Cost:       &data.Armor{Equipable: data.Equipable{Storable: data.Storable{Name: "Armor"}}},
+		CostNumber: 1,
+		Order:      4,
+	},
+	"Scrap Omamori": {
+		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
+		Events: []expedition.ExpeditionEvent{
+			craftWeapon,
+		},
+		Cost:       &data.Omamori{Equipable: data.Equipable{Storable: data.Storable{Name: "Omamori"}}},
+		CostNumber: 1,
+		Order:      5,
 	},
 }
 
@@ -87,7 +142,7 @@ func GetAvailableExpeditions(user *data.User) []*expedition.ExpToSendToFront {
 			cbl := true
 			if v.Cost != nil {
 				name = v.Cost.GetName()
-				cbl = user.Inventory.IsInInventory(v.Cost, v.CostNumber)
+				cbl = user.Inventory.HasEnought(v.Cost, v.CostNumber)
 			}
 			res = append(res, &expedition.ExpToSendToFront{
 				Category:      category,

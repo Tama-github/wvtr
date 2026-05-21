@@ -8,7 +8,7 @@ import (
 type ExpeditionEvent interface {
 	EndAt(startAt time.Time) time.Time
 	GetEventType() data.EncounterState
-	Solve(startAt time.Time, t *data.Team) *data.ExpeditionStepResolveInfo
+	Solve(startAt time.Time, t *data.Team, toSpend []data.IStorable) *data.ExpeditionStepResolveInfo
 	GetDuration() time.Duration
 	GetName() string
 	CopyEvent() ExpeditionEvent

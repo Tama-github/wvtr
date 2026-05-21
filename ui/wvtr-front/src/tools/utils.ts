@@ -1,5 +1,5 @@
 import type { Ref } from 'vue'
-import { EncounterState, HeroTakeDamageStatus, type CurrentStepRequestMessage, type ExpeditionStepResolveInfo, type FieldActionDesc, type Hero, type User, type Waifu } from './types';
+import { EncounterState, EquipmentType, HeroTakeDamageStatus, type CurrentStepRequestMessage, type ExpeditionStepResolveInfo, type FieldActionDesc, type Hero, type User, type Waifu } from './types';
 
 class global {
 
@@ -190,7 +190,7 @@ function getStringFromFAD(fad: FieldActionDesc): string[] {
     let fromname = (from && from.name ? from.name : "uknown")
     let target = fad.targetH
     let targetname = (target && target.name ? target.name : "uknown")
-    let status = fad.targetStatus
+    let status = fad.targetStatus!
 
     let critTxt = ""
     if (!!(status & HeroTakeDamageStatus.Crit)) {
@@ -237,6 +237,17 @@ function getEncounterStateString(state: EncounterState): string {
     return ""
 }
 
+function getTypeFromName(storableName: string): EquipmentType | undefined {
+    if (storableName.localeCompare("Weapon") == 0) {
+        return EquipmentType.WeaponType
+    } else if (storableName.localeCompare("Armor") == 0) {
+        return EquipmentType.ArmorType
+    } else if (storableName.localeCompare("Omamori") == 0) {
+        return EquipmentType.OmamoriType
+    }
+    return undefined
+}
+
 export {
     global,
     fetchData,
@@ -247,5 +258,6 @@ export {
     createAHeroFromAWaifu,
     getStringFromFAD,
     buildRequestPath,
+    getTypeFromName,
     RequestType,
 }

@@ -33,11 +33,11 @@ func (e *Expedition) CanEnter(user *data.User) bool {
 	return false
 }
 
-func (e *Expedition) Solve(identifier string, pTeam *data.Team, co []*data.CurrencyOwned) *data.ExpeditionDB {
+func (e *Expedition) Solve(identifier string, pTeam *data.Team, co []*data.CurrencyOwned, toSpend []data.IStorable) *data.ExpeditionDB {
 	var t time.Time = time.Now()
 	happened := make([]*data.ExpeditionStepResolveInfo, 0)
 	for _, ev := range e.Events {
-		happened = append(happened, ev.Solve(t, pTeam))
+		happened = append(happened, ev.Solve(t, pTeam, toSpend))
 		t = t.Add(ev.GetDuration())
 		if pTeam.IsDefeated() {
 			break

@@ -14,8 +14,8 @@ func (u *User) GetReward(expReward *Reward) {
 		h.GainXP(xpGained)
 	}
 	u.Inventory.Merge(expReward.Loot)
-	expReward.Loot = nil
-	expReward.LootID = 0
+	//expReward.Loot = nil
+	//expReward.LootID = 0
 }
 
 func (u *User) GetOwnedHeroByWaifuID(id string) *Hero {

@@ -29,6 +29,7 @@ func (inv *Inventory) RemoveWeapon(s *Weapon) *Weapon {
 	if i >= 0 {
 		res := inv.Weapons[i]
 		inv.Weapons = append(inv.Weapons[0:i], inv.Weapons[i+1:len(inv.Weapons)]...)
+		s.InventoryID = 0
 		return res
 	}
 	return nil
@@ -54,6 +55,7 @@ func (inv *Inventory) RemoveArmor(s *Armor) *Armor {
 	if i >= 0 {
 		res := inv.Armors[i]
 		inv.Armors = append(inv.Armors[0:i], inv.Armors[i+1:len(inv.Armors)]...)
+		s.InventoryID = 0
 		return res
 	}
 	return nil
@@ -79,6 +81,7 @@ func (inv *Inventory) RemoveOmamori(s *Omamori) *Omamori {
 	if i >= 0 {
 		res := inv.Omamoris[i]
 		inv.Omamoris = append(inv.Omamoris[0:i], inv.Omamoris[i+1:len(inv.Omamoris)]...)
+		s.InventoryID = 0
 		return res
 	}
 	return nil
@@ -123,6 +126,21 @@ func (i *Inventory) IsInInventory(s IStorable, number int) bool {
 		return (i.FindArmor(st) >= 0)
 	case *Omamori:
 		return (i.FindOmamori(st) >= 0)
+	case *Currency:
+		co := i.FindCurrency(st)
+		return (co != nil && co.NumberOwned >= number)
+	}
+	return false
+}
+
+func (i *Inventory) HasEnought(s IStorable, number int) bool {
+	switch st := s.(type) {
+	case *Weapon:
+		return len(i.Weapons) >= number
+	case *Armor:
+		return len(i.Armors) >= number
+	case *Omamori:
+		return len(i.Omamoris) >= number
 	case *Currency:
 		co := i.FindCurrency(st)
 		return (co != nil && co.NumberOwned >= number)

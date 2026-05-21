@@ -220,7 +220,7 @@ type ExpeditionDB struct {
 	Identifier        string                       `json:"identifier"`
 	StartedAt         time.Time                    `json:"startedAt"`
 	WhatHappened      []*ExpeditionStepResolveInfo `json:"whatHappened"`
-	ExpeditionRewards *Reward                      `json:"ExpeditionRewards"`
+	ExpeditionRewards *Reward                      `json:"expeditionRewards"`
 
 	// fk
 	ExpeditionRewardsID uint `json:"-"`

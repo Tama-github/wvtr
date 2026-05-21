@@ -19,13 +19,13 @@
         if (newtarget.value && newtarget.value.stepState) {
             eteam.value = newtarget.value.eTeam ? newtarget.value.eTeam : undefined
             console.log(newtarget.value.stepState)
-            user.value!.state.state = newtarget.value.stepState
+            user.value!.state!.state = newtarget.value.stepState
             
             timer = launchTimer()
         } else {
             stopTimer();
             await navigationHandler.fetchExpeditionReport()
-            user.value!.state.state = EncounterState.Report
+            user.value!.state!.state = EncounterState.Report
         }
     }
     
@@ -35,7 +35,7 @@
     })
 
     async function tick () {
-        if (!answer.value || user.value?.state.state == EncounterState.Report || !answer.value.timeline || !answer.value.timeline[answer.value.timeline.length-1]) {
+        if (!answer.value || user.value!.state!.state == EncounterState.Report || !answer.value.timeline || !answer.value.timeline[answer.value.timeline.length-1]) {
             stopTimer()
             return
         }
@@ -83,9 +83,9 @@
 <template>
     <div v-if="answer != undefined">
         <p>time before encounter end {{ timertxt }}</p>
-        <Travel v-if="user!.state.state == EncounterState.Travel"/>
-        <Neutral v-else-if="user!.state.state == EncounterState.Neutral"/>
-        <Fight v-if="user!.state.state == EncounterState.Fight" :eteam="eteam"/>
+        <Travel v-if="user!.state!.state == EncounterState.Travel"/>
+        <Neutral v-else-if="user!.state!.state == EncounterState.Neutral"/>
+        <Fight v-if="user!.state!.state == EncounterState.Fight" :eteam="eteam"/>
     </div>
     <div v-else>
         <h1>Trying to know where the party is</h1>

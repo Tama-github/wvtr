@@ -42,7 +42,7 @@ func (e FightEvent) GenerateTeamToFightFromAreaPool() *data.Team {
 	}
 }
 
-func (e *FightEvent) Solve(startAt time.Time, heroTeam *data.Team) *data.ExpeditionStepResolveInfo {
+func (e *FightEvent) Solve(startAt time.Time, heroTeam *data.Team, toSpend []data.IStorable) *data.ExpeditionStepResolveInfo {
 	resExp := data.NewExpeditionResolveInfo(e.GetEventType())
 
 	resExp.AddNewHappening(startAt, "Fight start", nil)
@@ -53,6 +53,9 @@ func (e *FightEvent) Solve(startAt time.Time, heroTeam *data.Team) *data.Expedit
 	resExp.AddNewHappening(startAt.Add(e.GetDuration()), "Fight End", nil)
 	if !heroTeam.IsDefeated() {
 		e.Reward.GenRandomReward()
+		for _, h := range resExp.ETeam.Heroes {
+			e.Reward.XP += xpToGainFromBeatingEnemy(h)
+		}
 	}
 	return resExp
 }

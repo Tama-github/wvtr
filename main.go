@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -375,6 +376,11 @@ func handlerCurrentExpeditionStep(w http.ResponseWriter, r *http.Request) {
 	utils.Give(res, w, true)
 }
 
+type EquipmentToSpend struct {
+	EqID   uint          `json:"eq_id"`
+	EqType EquipmentType `json:"eq_type"`
+}
+
 func handlerLaunchExpedition(w http.ResponseWriter, r *http.Request) {
 	functionS := "[handlerLaunchExpedition]"
 	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
@@ -383,12 +389,49 @@ func handlerLaunchExpedition(w http.ResponseWriter, r *http.Request) {
 	expCathegory := r.PathValue("expCat")
 	expIdentifier := r.PathValue("expId")
 
+	// if there is something in the request body it means we want to pass an equipment to the expedition for scraping or other purpose
+	var cost []*EquipmentToSpend = []*EquipmentToSpend{}
+	err := json.NewDecoder(r.Body).Decode(&cost)
+	toSpend := make([]data.IStorable, 0)
+
+	if err == nil {
+		for _, ets := range cost {
+			switch ets.EqType {
+			case WeaponType:
+				e := databasecontroller.GetWeaponByID(ets.EqID)
+				if e.ID == 0 {
+					break
+				}
+				toSpend = append(toSpend, e)
+				e.InventoryID = 0
+				databasecontroller.SaveWeapon(e)
+			case ArmorType:
+				e := databasecontroller.GetArmorByID(ets.EqID)
+				if e.ID == 0 {
+					break
+				}
+				toSpend = append(toSpend, e)
+				e.InventoryID = 0
+				databasecontroller.SaveArmor(e)
+			case OmamoriType:
+				e := databasecontroller.GetOmamoriByID(ets.EqID)
+				if e.ID == 0 {
+					break
+				}
+				toSpend = append(toSpend, e)
+				e.InventoryID = 0
+				databasecontroller.SaveOmamori(e)
+			}
+		}
+	}
+
 	user := databasecontroller.GetUserByID(uint(id))
+
 	var exp expedition.Expedition = gamedata.Expeditions[expCathegory][expIdentifier].GetCopy()
-	if exp.CanEnter(user) && user.Inventory.Remove(exp.Cost, exp.CostNumber) {
+	if (err == nil && len(toSpend) == len(cost)) || (exp.CanEnter(user) && user.Inventory.Remove(exp.Cost, exp.CostNumber)) {
 		databasecontroller.SaveInventory(user.Inventory)
 		c := data.NewCurrencyOwned(databasecontroller.GetAllCurrencies())
-		databasecontroller.LaunchExpedition(user, exp.Solve(expIdentifier, user.CurrentTeam, c))
+		databasecontroller.LaunchExpedition(user, exp.Solve(expIdentifier, user.CurrentTeam, c, toSpend))
 		user.CurrentTeam.ResetSkills()
 
 		utils.Give(user.State.CurrentExpedition.WhatHappened[0], w, true)

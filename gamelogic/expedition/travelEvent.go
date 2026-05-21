@@ -23,7 +23,7 @@ func (e TravelEvent) GetEventType() data.EncounterState {
 	return data.Travel
 }
 
-func (e TravelEvent) Solve(startAt time.Time, t *data.Team) *data.ExpeditionStepResolveInfo {
+func (e TravelEvent) Solve(startAt time.Time, t *data.Team, toSpend []data.IStorable) *data.ExpeditionStepResolveInfo {
 	resExp := data.NewExpeditionResolveInfo(e.GetEventType())
 
 	resExp.AddNewHappening(startAt, "Traveling Start", nil)
