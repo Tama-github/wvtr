@@ -14,6 +14,7 @@ func (u *User) GetReward(expReward *Reward) {
 		h.GainXP(xpGained)
 	}
 	u.Inventory.Merge(expReward.Loot)
+	expReward.Loot.Empty()
 	//expReward.Loot = nil
 	//expReward.LootID = 0
 }

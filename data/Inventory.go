@@ -178,6 +178,15 @@ func (inv *Inventory) Merge(other *Inventory) {
 	}
 }
 
+func (inv *Inventory) Empty() {
+	inv.Weapons = []*Weapon{}
+	inv.Armors = []*Armor{}
+	inv.Omamoris = []*Omamori{}
+	for i := range inv.Currencies {
+		inv.Currencies[i].NumberOwned = 0
+	}
+}
+
 func (i *Inventory) StoreReward(re []IStorable, cu map[CurrencyType]int) {
 	for _, s := range re {
 		s.Store(i, 1)

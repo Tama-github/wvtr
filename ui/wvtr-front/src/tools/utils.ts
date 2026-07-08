@@ -22,6 +22,7 @@ class global {
     public static readonly REQ_SAVEUSER = "/api/saveUser/";
     public static readonly REQ_SAVEGAMESTATE = "/api/saveGameState/";
     public static readonly REQ_EQUIP = "/api/equip/{uid}/{hid}/{etype}/{eid}";
+    public static readonly REQ_CLEARCURRENTEXP = "/api/clearcurrentexp/{uid}"
 
     //Create objects
     public static readonly REQ_CREATEHEROFROMWAIFU = "/api/createherofromwaifu/{id}"
@@ -48,6 +49,7 @@ enum RequestType {
     SaveUser,
     SaveGameState,
     Equip,
+    ClearCurrentExp,
 
     LaunchExpedition,
     UpdateTeam,
@@ -98,6 +100,9 @@ function buildRequestPath(reqType: RequestType, pathParams: { id: string; value:
             break
         case RequestType.Equip:
             request += global.REQ_EQUIP
+            break
+        case RequestType.ClearCurrentExp:
+            request += global.REQ_CLEARCURRENTEXP
             break
         default:
             request = ""

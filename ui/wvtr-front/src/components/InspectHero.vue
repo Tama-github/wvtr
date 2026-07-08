@@ -3,6 +3,12 @@
 import { EquipmentType, type Armor, type Hero, type Omamori, type Weapon } from "../tools/types.ts"
     import { global } from "../tools/utils.ts"
 import type { NavigationHandler } from "@/tools/navigationHandler.ts";
+import Hoverable from "./Hoverable.vue";
+import InspectEquipment from "./InspectEquipment.vue";
+import WeaponHoverable from "./HoverComponents/WeaponHoverable.vue";
+import SkillHoverable from "./HoverComponents/SkillHoverable.vue";
+import OmamoriHoverable from "./HoverComponents/OmamoriHoverable.vue";
+import ArmorHoverable from "./HoverComponents/ArmorHoverable.vue";
 
     const navigationHandler = inject<NavigationHandler>('navigationHandler')!
     const hero = navigationHandler.getHeroToInspect()
@@ -70,13 +76,24 @@ import type { NavigationHandler } from "@/tools/navigationHandler.ts";
             <div class="column">
                 <label>Skills</label>
                 <div class="raw">
-                    <div v-if="hero.uniqueSkill" class="column">
-                        <label>{{ hero.uniqueSkill.name }}</label>
-                        <img v-if="hero.uniqueSkill.image_url !== ''" :src="hero.uniqueSkill.image_url" width="75"/>
+                    <div class="column">
+                        <div> Unique skill </div>
+                        <SkillHoverable v-if="hero.uniqueSkill" :skill="hero.uniqueSkill">
+                            <div class="column">
+                                <img v-if="hero.uniqueSkill.image_url !== ''" :src="hero.uniqueSkill.image_url" width="75"/>
+                            </div>
+                        </SkillHoverable>
                     </div>
-                    <div v-if="hero.activeSkill" class="column">
-                        <label>{{ hero.activeSkill.name }}</label>
-                        <img v-if="hero.activeSkill.image_url !== ''" :src="hero.activeSkill.image_url"/>
+                    <div class="column">
+                        <div> Active skill </div>
+                        <SkillHoverable v-if="hero.activeSkill" :skill="hero.activeSkill">
+                            <div class="column">
+                                <img v-if="hero.activeSkill.image_url !== ''" :src="hero.activeSkill.image_url"/>
+                            </div>
+                        </SkillHoverable>
+                        <div v-else class="column">
+                            <img width="75" :src="global.NO_EQUIPMENT"/>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -85,17 +102,24 @@ import type { NavigationHandler } from "@/tools/navigationHandler.ts";
                 <div class="raw">
                     <div class="column">
                         <label>Weapon</label>
-                        <img v-if="hero.equipment!.weapon" v-on:click="clickEquiment(EquipmentType.WeaponType)" width="75" :src="hero.equipment!.weapon?.iconURL"/>
+                        <WeaponHoverable v-if="hero.equipment!.weapon" :weapon="hero.equipment!.weapon">
+                            <img v-on:click="clickEquiment(EquipmentType.WeaponType)" width="75" :src="hero.equipment!.weapon.iconURL"/>
+                        </WeaponHoverable>
                         <img v-else v-on:click="clickEquiment(EquipmentType.WeaponType)" width="75" :src="global.NO_EQUIPMENT"/>
                     </div>
+
                     <div class="column">
                         <label>Armor</label>
-                        <img v-if="hero.equipment!.armor" v-on:click="clickEquiment(EquipmentType.ArmorType)" width="75" :src="hero.equipment!.armor?.iconURL"/>
+                        <ArmorHoverable v-if="hero.equipment!.armor" :armor="hero.equipment!.armor">
+                            <img v-on:click="clickEquiment(EquipmentType.ArmorType)" width="75" :src="hero.equipment!.armor?.iconURL"/>
+                        </ArmorHoverable>
                         <img v-else v-on:click="clickEquiment(EquipmentType.ArmorType)" width="75" :src="global.NO_EQUIPMENT"/>
                     </div>
                     <div class="column">
                         <label>Omamori</label>
-                        <img v-if="hero.equipment!.omamori" v-on:click="clickEquiment(EquipmentType.OmamoriType)" width="75" :src="hero.equipment!.omamori?.iconURL"/>
+                        <OmamoriHoverable v-if="hero.equipment!.omamori" :omamori="hero.equipment!.omamori">
+                            <img v-on:click="clickEquiment(EquipmentType.OmamoriType)" width="75" :src="hero.equipment!.omamori?.iconURL"/>
+                        </OmamoriHoverable>
                         <img v-else v-on:click="clickEquiment(EquipmentType.OmamoriType)" width="75" :src="global.NO_EQUIPMENT"/>
                     </div>
                 </div>

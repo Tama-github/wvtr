@@ -88,6 +88,13 @@ class NavigationHandler {
         this.navigationStatus.value = NavigationStatus.Connexion
     }
 
+    async closeReport() {
+        await this.setGameState(EncounterState.Home)
+        await this.clearCurrentExpInv()
+        await this.fetchTeam()
+        await this.fetchInventory()
+    }
+
     async fetchAvailableExpedition() {
         let exps = ref<ExpToGetFromBack[] | undefined>(undefined)
         await fetchData<ExpToGetFromBack[]>(exps, RequestType.AvailableExpeditions, [{ id: "id", value: `${this.user.value!.id}` }])
@@ -112,6 +119,11 @@ class NavigationHandler {
         await fetchData<Team>(response, RequestType.Team, [{ id: "id", value: `${this.user.value!.currentTeam!.id}` }])
 
         this.user.value!.currentTeam! = response.value!
+    }
+
+    async clearCurrentExpInv() {
+        let response = ref<undefined>(undefined)
+        await fetchData<undefined>(response, RequestType.ClearCurrentExp, [{ id: "uid", value: `${this.user.value!.id}` }])
     }
 
     async fetchInventory() {

@@ -303,6 +303,7 @@ export type {
     Storable,
     ExpToLaunch,
     EquipmentToSpend,
+    Skill,
 };
 
 export {

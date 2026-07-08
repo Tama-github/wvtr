@@ -447,13 +447,25 @@ func handlerExpeditionReport(w http.ResponseWriter, r *http.Request) {
 	id := utils.GetParamInt("uid", r)
 
 	user := databasecontroller.GetUserByID(uint(id))
+	//databasecontroller.Delete(exp)
+	utils.Give(user.State.CurrentExpedition, w, true)
+}
+
+func handlerClearCurrentExp(w http.ResponseWriter, r *http.Request) {
+	functionS := "[handlerCLearCurrentExp]"
+	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
+	id := utils.GetParamInt("uid", r)
+
+	user := databasecontroller.GetUserByID(uint(id))
 	exp := user.State.CurrentExpedition
 	user.GetReward(exp.ExpeditionRewards)
-	//databasecontroller.Delete(exp)
+	user.State.CurrentExpedition.ExpeditionRewards.Loot.Empty()
+	user.State.CurrentExpedition = nil
 	databasecontroller.SaveInventory(user.Inventory)
 	databasecontroller.UpdateUser(user)
 	databasecontroller.SaveTeam(user.CurrentTeam)
-	utils.Give(user.State.CurrentExpedition, w, true)
+
+	utils.Give(user, w, true)
 }
 
 func main() {
@@ -486,6 +498,7 @@ func main() {
 	//get
 	http.HandleFunc("/api/launchExpedition/{usr}/{expCat}/{expId}", handlerLaunchExpedition)
 	http.HandleFunc("/api/createherofromwaifu/{id}", handlerCreateHeroForPlayer)
+	http.HandleFunc("/api/clearcurrentexp/{uid}", handlerClearCurrentExp)
 
 	//post
 	http.HandleFunc("/api/updateTeam/", handlerUpdateTeam)

@@ -10,9 +10,7 @@
     const report = navigationHandler.getReport()
     const reportJson = JSON.stringify(report)
     async function onclick() {
-        await navigationHandler.setGameState(EncounterState.Home)
-        await navigationHandler.fetchTeam()
-        await navigationHandler.fetchInventory()
+        await navigationHandler.closeReport()
     }
 </script>
 
