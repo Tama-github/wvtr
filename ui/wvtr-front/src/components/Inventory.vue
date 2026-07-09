@@ -24,7 +24,12 @@ import InspectEquipment from "./InspectEquipment.vue";
     }
 
     function onclickEquip() {
-        navigationHandler.equip(equipmentToInspect.value!)
+        if (equipmentToInspect.value) 
+        { 
+            navigationHandler.equip(equipmentToInspect.value!)
+        } else {
+            errorMsg.value = "No equipment selected"
+        }
     }
 
     async function onclickLExp() {
