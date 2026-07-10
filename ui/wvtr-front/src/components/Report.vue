@@ -66,9 +66,9 @@
                 <div v-if="report.expeditionRewards.loot!.armors.length>0">
                     <div class="column" v-for="w in report.expeditionRewards.loot!.armors">
                         <img :src="w.iconURL" width="50px">
-                        <div> Damage: {{ w.baseResistancesRange }} </div>
-                        <div> Attack speed: {{ w.blockScore }} </div>
-                        <div> Crit rate: {{ w.evadeScore }} </div>
+                        <div> Resistances: {{ w.baseResistancesRange }} </div>
+                        <div> Block score: {{ w.blockScore?.value }} </div>
+                        <div> Evade score: {{ w.evadeScore?.value }} </div>
                         <div v-if="w.affixes.length>0">
                             <div>Affixes:</div>
                             <div v-for="a in w.affixes">

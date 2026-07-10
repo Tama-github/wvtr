@@ -17,7 +17,7 @@ var PlateArmorBase *data.ArmorBase = &data.ArmorBase{
 	},
 	EquipableBase: data.EquipableBase{
 		BaseName: "Plate armor",
-		IconURL:  weaponsImgsPath + "plate_armor_icon.png",
+		IconURL:  armorsImgsPath + "plate_armor_icon.png",
 		AffixesPool: []*data.Affix{
 			PhysicalRes[1],
 			ElementalRes[1],
@@ -44,7 +44,7 @@ var LeatherArmorBase *data.ArmorBase = &data.ArmorBase{
 	},
 	EquipableBase: data.EquipableBase{
 		BaseName: "Leather armor",
-		IconURL:  weaponsImgsPath + "leather_armor_icon.png",
+		IconURL:  armorsImgsPath + "leather_armor_icon.png",
 		AffixesPool: []*data.Affix{
 			PhysicalRes[1],
 			ElementalRes[1],
@@ -71,7 +71,7 @@ var ClothArmorBase *data.ArmorBase = &data.ArmorBase{
 	},
 	EquipableBase: data.EquipableBase{
 		BaseName: "Cloth armor",
-		IconURL:  weaponsImgsPath + "cloth_armor_icon.png",
+		IconURL:  armorsImgsPath + "cloth_armor_icon.png",
 		AffixesPool: []*data.Affix{
 			PhysicalRes[1],
 			ElementalRes[1],
