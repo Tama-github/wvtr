@@ -97,6 +97,13 @@ var ExpeditionsTest = map[string]expedition.Expedition{
 		},
 		Order: 2,
 	},
+	"Craft Armor": {
+		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
+		Events: []expedition.ExpeditionEvent{
+			craftArmor,
+		},
+		Order: 3,
+	},
 	"Scrap Weapon": {
 		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
 		Events: []expedition.ExpeditionEvent{
@@ -104,7 +111,7 @@ var ExpeditionsTest = map[string]expedition.Expedition{
 		},
 		Cost:       &data.Weapon{Equipable: data.Equipable{Storable: data.Storable{Name: "Weapon"}}},
 		CostNumber: 1,
-		Order:      3,
+		Order:      4,
 	},
 	"Scrap Armor": {
 		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
@@ -113,7 +120,7 @@ var ExpeditionsTest = map[string]expedition.Expedition{
 		},
 		Cost:       &data.Armor{Equipable: data.Equipable{Storable: data.Storable{Name: "Armor"}}},
 		CostNumber: 1,
-		Order:      4,
+		Order:      5,
 	},
 	"Scrap Omamori": {
 		ImgURL: DOMAIN_NAME + "/imgs/expeditions/base_expedition.png",
@@ -122,7 +129,7 @@ var ExpeditionsTest = map[string]expedition.Expedition{
 		},
 		Cost:       &data.Omamori{Equipable: data.Equipable{Storable: data.Storable{Name: "Omamori"}}},
 		CostNumber: 1,
-		Order:      5,
+		Order:      6,
 	},
 }
 

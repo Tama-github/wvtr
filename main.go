@@ -447,12 +447,11 @@ func handlerExpeditionReport(w http.ResponseWriter, r *http.Request) {
 	id := utils.GetParamInt("uid", r)
 
 	user := databasecontroller.GetUserByID(uint(id))
-	//databasecontroller.Delete(exp)
 	utils.Give(user.State.CurrentExpedition, w, true)
 }
 
 func handlerClearCurrentExp(w http.ResponseWriter, r *http.Request) {
-	functionS := "[handlerCLearCurrentExp]"
+	functionS := "[handlerClearCurrentExp]"
 	logger.DumpLog.Printf("%s call for API hadler\n", functionS)
 	id := utils.GetParamInt("uid", r)
 

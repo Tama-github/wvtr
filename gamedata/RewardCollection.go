@@ -44,7 +44,11 @@ var craftWeaponsRewardPool *expedition.RewardPool = &expedition.RewardPool{
 }
 
 var craftArmorsRewardPool *expedition.RewardPool = &expedition.RewardPool{
-	ItemBasePool: []data.IEquipableBase{},
+	ItemBasePool: []data.IEquipableBase{
+		PlateArmorBase,
+		LeatherArmorBase,
+		ClothArmorBase,
+	},
 	CurrencyPool: map[data.CurrencyType]data.StatsRange{
 		data.Gold:   {Min: 0, Max: 0},
 		data.CScrap: {Min: 0, Max: 0},
